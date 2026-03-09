@@ -1,7 +1,9 @@
-﻿namespace SmartQueue.Data.Interfaces
+﻿using SmartQueue.Data.Models;
+
+namespace SmartQueue.Data.Interfaces
 {
     public interface IService
     {
-        public IEnumerable<IService> Services { get; }
+        public IEnumerable<Service> Services { get; }
     }
 }
