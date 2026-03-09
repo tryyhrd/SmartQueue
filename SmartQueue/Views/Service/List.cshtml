@@ -1,0 +1,16 @@
+﻿@using SmartQueue.Data.Models
+@model IEnumerable<Service>
+
+@{
+	Layout = "_Layout";
+}
+
+<h2>Все услуги</h2>
+@{
+	foreach (Service service in Model)
+	{
+		<div>
+			<h3>@service.Name</h3>
+		</div>
+	}
+}

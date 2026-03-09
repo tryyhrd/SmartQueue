@@ -13,6 +13,7 @@ namespace SmartQueue.Data.Mocks
                 {
                     new Service()
                     {
+                        Id = 1,
                         Name = "Подача документов",
                         Description = "adawda",
                         Code = "001"
