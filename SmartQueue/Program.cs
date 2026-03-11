@@ -1,23 +1,26 @@
+using Microsoft.EntityFrameworkCore;
 using SmartQueue.Data.Interfaces;
 using SmartQueue.Data.Mocks;
+using SmartQueue.Data.Common;
+using SmartQueue.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.Services.AddDbContext<SmartQueueContext>(options =>
-//    options.UseMySql(
-//        builder.Configuration.GetConnectionString("DefaultConnection"),
-//        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")),
-//        options => options.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)
-//        )
-//    .EnableDetailedErrors()
-//    );
+builder.Services.AddDbContext<SmartQueueContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")),
+        options => options.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)
+        )
+    .EnableDetailedErrors()
+    );
 
 builder.Services.AddControllersWithViews()
     .AddApplicationPart(typeof(SmartQueue.Controllers.ServiceController).Assembly);
 
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddTransient<IService, MockService>();
+builder.Services.AddTransient<IService, DbService>();
 
 var app = builder.Build();
 

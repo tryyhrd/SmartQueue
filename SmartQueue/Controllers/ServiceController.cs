@@ -3,7 +3,6 @@ using SmartQueue.Data.Interfaces;
 
 namespace SmartQueue.Controllers
 {
-    //[Route("Service")]
     public class ServiceController: Controller
     {
         private readonly IService _allServices;
@@ -12,7 +11,6 @@ namespace SmartQueue.Controllers
             this._allServices = allServices;
         }
 
-        //[HttpGet("List")]
         public ViewResult List()
         {
             ViewBag.Title = "Предоставляемые услуги";
