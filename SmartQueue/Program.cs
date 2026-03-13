@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using SmartQueue.Data.Interfaces;
-using SmartQueue.Data.Mocks;
 using SmartQueue.Data.Common;
 using SmartQueue.Data.Services;
 
@@ -21,6 +20,21 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTransient<IService, DbService>();
+builder.Services.AddTransient<ITicket, DbService>();
+builder.Services.AddTransient<IVisitor, DbService>();
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+//builder.WebHost.ConfigureKestrel(serverOptions =>
+//{
+//    serverOptions.Listen(System.Net.IPAddress.Any, 5000);
+//});
 
 var app = builder.Build();
 
@@ -39,11 +53,11 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Service}/{action=List}/{id?}");
+    pattern: "{controller=Home}/{action=Autorization}/{id?}");
 
 app.MapRazorPages();
 

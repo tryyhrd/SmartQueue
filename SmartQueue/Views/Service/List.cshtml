@@ -4,12 +4,44 @@
 @{
 	Layout = "_Layout";
 }
-@{
-	foreach (Service service in Model)
-	{
-		<div>
-			<h3>@service.Name</h3>
-			<p>@service.Description</p>
-		</div>
-	}
+<style>
+    .btn-outline-custom {
+        background-color: white !important;
+        border: 2px solid black !important;
+        color: black !important;
+        text-align: left !important;
+        padding: 1rem !important;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+        .btn-outline-custom:hover {
+            background-color: #f0f0f0 !important; 
+            border-color: #333 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-outline-custom strong {
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .btn-outline-custom small {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            display: block;
+        }
+</style>
+
+@foreach (Service service in Model)
+{
+    <div class="mb-3">
+        <button type="button"
+                class="btn btn-outline-custom"
+                onclick="location.href='@Url.Action("Create", "Ticket", new { serviceId = service.Id })'">
+            <strong>@service.Name</strong>
+            <small>@service.Description</small>
+        </button>
+    </div>
 }

@@ -1,7 +1,10 @@
-﻿namespace SmartQueue.Data.Interfaces
+﻿using SmartQueue.Data.Models;
+
+namespace SmartQueue.Data.Interfaces
 {
     public interface IVisitor
     {
-        public IEnumerable<IVisitor> Visitors { get; }
+        public IEnumerable<Visitor> Visitors { get; }
+        Task AddVisitorAsync(Visitor visitor);
     }
 }

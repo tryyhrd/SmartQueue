@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartQueue.Data.Common;
 
@@ -11,9 +12,11 @@ using SmartQueue.Data.Common;
 namespace SmartQueue.Migrations
 {
     [DbContext(typeof(SmartQueueContext))]
-    partial class SmartQueueContextModelSnapshot : ModelSnapshot
+    [Migration("20260312092011_AddStatusToTicket")]
+    partial class AddStatusToTicket
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,6 +99,7 @@ namespace SmartQueue.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");

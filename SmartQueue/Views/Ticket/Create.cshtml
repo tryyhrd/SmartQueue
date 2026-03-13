@@ -1,0 +1,250 @@
+﻿@model SmartQueue.ViewModels.QueueTicketViewModel
+
+@{
+    ViewBag.Title = "Талон №" + Model.Ticket.Number;
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .ticket-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            max-width: 450px;
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid #e0e0e0; 
+        }
+
+        .ticket-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+            .ticket-header h1 {
+                font-size: 28px;
+                margin-bottom: 5px;
+            }
+
+            .ticket-header p {
+                font-size: 14px;
+                opacity: 0.9;
+            }
+
+        .ticket-body {
+            padding: 30px;
+        }
+
+        .ticket-number {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #667eea;
+        }
+
+            .ticket-number .label {
+                font-size: 14px;
+                color: #666;
+                margin-bottom: 5px;
+            }
+
+            .ticket-number .value {
+                font-size: 48px;
+                font-weight: bold;
+                color: #667eea;
+            }
+
+        .ticket-info {
+            margin-bottom: 20px;
+        }
+
+        .ticket-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+            .ticket-info-row:last-child {
+                border-bottom: none;
+            }
+
+            .ticket-info-row .label {
+                font-size: 14px;
+                color: #666;
+                font-weight: 500;
+            }
+
+            .ticket-info-row .value {
+                font-size: 16px;
+                color: #333;
+                font-weight: 600;
+                text-align: right;
+            }
+
+        .ticket-status {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .status-waiting {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-completed {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .ticket-footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #eee;
+        }
+
+        .print-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+            .print-btn:hover {
+                transform: translateY(-2px);
+                opacity: 0.95;
+            }
+
+        @@media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .ticket-container {
+                box-shadow: none;
+                max-width: 100%;
+                border: 1px solid #ccc;
+            }
+
+            .print-btn {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket-container">
+        <div class="ticket-header">
+            <h1>Электронная очередь</h1>
+        </div>
+
+        <div class="ticket-body">
+            <div class="ticket-number">
+                <div class="label">Ваш номер</div>
+                <div class="value">@Model.Ticket.Number</div>
+            </div>
+
+            <div class="ticket-info">
+                <div class="ticket-info-row">
+                    <span class="label">Услуга:</span>
+                    <span class="value">@Model.Service?.Name</span>
+                </div>
+                <div class="ticket-info-row">
+                    <span class="label">Дата выдачи:</span>
+                    <span class="value">@Model.Ticket.CreatedAd.ToString("dd.MM.yyyy")</span>
+                </div>
+                <div class="ticket-info-row">
+                    <span class="label">Время выдачи:</span>
+                    <span class="value">@Model.Ticket.CreatedAd.ToString("HH:mm")</span>
+                </div>
+            </div>
+
+            <div class="ticket-status @GetStatusClass(Model.Ticket.Status)">
+                @GetStatusText(Model.Ticket.Status)
+            </div>
+
+            @* <button class="print-btn" onclick="window.print()">
+                Распечатать талон
+            </button> *@
+        </div>
+
+        <div class="ticket-footer">
+            <p>Спасибо за обращение! Пожалуйста, ожидайте вызова.</p>
+        </div>
+    </div>
+
+    @functions {
+        string GetStatusClass(SmartQueue.Data.Models.Ticket.StatusType status)
+        {
+            return status switch
+            {
+                SmartQueue.Data.Models.Ticket.StatusType.Waiting => "status-waiting",
+                SmartQueue.Data.Models.Ticket.StatusType.Active => "status-active",
+                SmartQueue.Data.Models.Ticket.StatusType.Completed => "status-completed",
+                _ => "status-waiting"
+            };
+        }
+
+        string GetStatusText(SmartQueue.Data.Models.Ticket.StatusType status)
+        {
+            return status switch
+            {
+                SmartQueue.Data.Models.Ticket.StatusType.Waiting => "Ожидание",
+                SmartQueue.Data.Models.Ticket.StatusType.Active => "Принят",
+                SmartQueue.Data.Models.Ticket.StatusType.Completed => "Завершён",
+                _ => "Ожидание"
+            };
+        }
+    }
+</body>
+</html>
