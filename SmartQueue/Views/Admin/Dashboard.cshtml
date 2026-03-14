@@ -13,6 +13,15 @@
     <title>@ViewBag.Title</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
+    @{
+        var tokenHtml = Html.AntiForgeryToken().ToString();
+        var tokenValue = System.Text.RegularExpressions.Regex
+        .Match(tokenHtml, @"value=""([^""]+)""")
+        .Groups[1]
+        .Value;
+    }
+    <meta name="csrf-token" content="@tokenValue" />
+
     <style>
         * {
             margin: 0;
@@ -283,27 +292,24 @@
         <div class="queue-section">
             <div class="section-header">
                 <span class="section-title">Очередь ожидания</span>
-                <span class="section-badge">@Model.WaitingTickets.Count()</span>
+                <span class="section-badge" id="waitingBadge">@Model.WaitingTickets.Count()</span>
             </div>
-            <div class="ticket-list">
+            <div class="ticket-list" id="waitingList">
                 @if (Model.WaitingTickets.Any())
                 {
                     @foreach (var ticket in Model.WaitingTickets)
                     {
-                        <div class="ticket-item">
+                        <div class="ticket-item" data-ticket-id="@ticket.Id">
                             <div class="ticket-info">
                                 <div class="ticket-number">@ticket.Number</div>
                                 <div class="ticket-service">@ticket.Service?.Name</div>
                                 <div class="ticket-time">@ticket.CreatedAt.ToString("HH:mm")</div>
                             </div>
                             <div class="ticket-actions">
-                                @Html.AntiForgeryToken()
-
-                                <button type="button"
-                                        class="btn-action btn-accept js-accept-btn"
-                                        data-ticket-id="@ticket.Id">
-                                    Принять
-                                </button>
+                                <form asp-action="AcceptTicket" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@ticket.Id" />
+                                    <button type="submit" class="btn-action btn-accept">Принять</button>
+                                </form>
                             </div>
                         </div>
                     }
@@ -318,40 +324,40 @@
             </div>
         </div>
 
-        <div class="queue-section">
-            <div class="section-header">
-                <span class="section-title">На обслуживании</span>
-                <span class="section-badge">@Model.ActiveTickets.Count()</span>
-            </div>
-            <div class="ticket-list">
-                @if (Model.ActiveTickets.Any())
-                {
-                    @foreach (var ticket in Model.ActiveTickets)
+            <div class="queue-section">
+                <div class="section-header">
+                    <span class="section-title">На обслуживании</span>
+                    <span class="section-badge" id="activeBadge">@Model.ActiveTickets.Count()</span>
+                </div>
+                <div class="ticket-list">
+                    @if (Model.ActiveTickets.Any())
                     {
-                        <div class="ticket-item">
-                            <div class="ticket-info">
-                                <div class="ticket-number">@ticket.Number</div>
-                                <div class="ticket-service">@ticket.Service?.Name</div>
-                                <div class="ticket-time">@ticket.CreatedAt.ToString("HH:mm")</div>
+                        @foreach (var ticket in Model.ActiveTickets)
+                        {
+                            <div class="ticket-item">
+                                <div class="ticket-info">
+                                    <div class="ticket-number">@ticket.Number</div>
+                                    <div class="ticket-service">@ticket.Service?.Name</div>
+                                    <div class="ticket-time">@ticket.CreatedAt.ToString("HH:mm")</div>
+                                </div>
+                                <div class="ticket-actions">
+                                    <form asp-action="CompleteTicket" method="post">
+                                        <input type="hidden" name="id" value="@ticket.Id" />
+                                        <button type="submit" class="btn-action btn-complete">Завершить</button>
+                                    </form>
+                                </div>
                             </div>
-                            <div class="ticket-actions">
-                                <form asp-action="CompleteTicket" method="post">
-                                    <input type="hidden" name="id" value="@ticket.Id" />
-                                    <button type="submit" class="btn-action btn-complete">Завершить</button>
-                                </form>
-                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <div style="font-size: 40px;">—</div>
+                            <p>Нет активных талонов</p>
                         </div>
                     }
-                }
-                else
-                {
-                    <div class="empty-state">
-                        <div style="font-size: 40px;">—</div>
-                        <p>Нет активных талонов</p>
-                    </div>
-                }
+                </div>
             </div>
-        </div>
 
         <div class="queue-section completed-section">
             <div class="section-header">
@@ -380,98 +386,20 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        setInterval(function() {
-            location.reload();
-        }, 10000);
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.0/dist/browser/signalr.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        if (typeof signalR !== 'undefined') {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/queueHub")
+                .withAutomaticReconnect()
+                .build();
 
-            console.log('🔐 CSRF Token loaded:', csrfToken ? 'OK (length: ' + csrfToken.length + ')' : 'NOT FOUND');
-
-            document.querySelectorAll('.js-accept-btn').forEach(button => {
-                button.addEventListener('click', async function() {
-                    const ticketId = this.dataset.ticketId;
-                    const ticketItem = this.closest('.ticket-item');
-
-                    // Проверка: есть ли токен
-                    if (!csrfToken) {
-                        alert('Ошибка: не найден CSRF-токен. Обновите страницу.');
-                        return;
-                    }
-
-                    // Визуальная блокировка
-                    this.disabled = true;
-                    this.textContent = '...';
-
-                    try {
-                        console.log('📤 Отправка запроса: id=' + ticketId);
-
-                        const response = await fetch('/Admin/AcceptTicket', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'RequestVerificationToken': csrfToken,  
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: `id=${ticketId}`
-                        });
-
-                        console.log('📥 Ответ сервера:', response.status);
-
-                        if (response.ok || response.status === 302) {   
-
-                            const activeList = document.querySelectorAll('.ticket-list')[1];
-                            const emptyState = activeList.querySelector('.empty-state');
-
-                            if (emptyState) emptyState.remove();
-                            const actionsDiv = ticketItem.querySelector('.ticket-actions');
-                            actionsDiv.innerHTML = `
-                                <form action="/Admin/CompleteTicket" method="post">
-                                    <input type="hidden" name="__RequestVerificationToken" value="${csrfToken}">
-                                    <input type="hidden" name="id" value="${ticketId}" />
-                                    <button type="submit" class="btn-action btn-complete">Завершить</button>
-                                </form>
-                            `;
-
-                            ticketItem.style.opacity = '0';
-                            setTimeout(() => {
-                                activeList.appendChild(ticketItem); // Переносим элемент в другой список
-                                ticketItem.style.opacity = '1';
-                                ticketItem.style.transform = 'none';
-                            }, 300);
-
-                            updateBadgeCount('waitingBadge', -1);
-                            updateBadgeCount('activeBadge', 1);
-                        } else {
-                            const errorText = await response.text();
-                            console.error('❌ Ошибка сервера:', response.status, errorText);
-                            alert(`Ошибка ${response.status}`);
-                            resetButton(this);
-                        }
-                    } catch (error) {
-                        console.error('🔥 Ошибка fetch:', error);
-                        alert('Ошибка соединения: ' + error.message);
-                        resetButton(this);
-                    }
-                });
+            connection.on("OnTicketUpdated", function(update) {
+                location.reload();
             });
 
-            function resetButton(btn) {
-                btn.disabled = false;
-                btn.textContent = 'Принять';
-            }
-        });
-
-        function updateBadgeCount(badgeId, change) {
-            const badge = document.getElementById(badgeId);
-            if (badge) {
-                let count = parseInt(badge.textContent) || 0;
-                badge.textContent = Math.max(0, count + change);
-            }
+            connection.start().catch(err => console.error('SignalR error:', err));
         }
     </script>
 </body>

@@ -20,7 +20,7 @@
         }
 
         body {
-            background: white;
+            background: #f8f9fa;
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: black;
@@ -31,7 +31,7 @@
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 30px;
-            padding: 20px;
+            padding: 30px;
             height: 100vh;
         }
 
@@ -48,6 +48,7 @@
             overflow: hidden;
             position: relative;
             border: 2px solid black;
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.1);
         }
 
             .video-container video,
@@ -69,6 +70,7 @@
             .video-placeholder h3 {
                 font-size: 24px;
                 margin-bottom: 10px;
+                font-weight: 300;
             }
 
         .current-ticket-section {
@@ -76,38 +78,35 @@
             border-radius: 15px;
             padding: 30px;
             border: 2px solid black;
-            box-shadow: 2px 2px 0px black;
+            box-shadow: 6px 6px 0px rgba(102, 126, 234, 0.2);
             position: relative;
             overflow: hidden;
         }
 
         .current-label {
             font-size: 14px;
-            color: #666;
+            color: #667eea;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             margin-bottom: 15px;
+            font-weight: 700;
         }
 
         .current-ticket-number {
             font-size: 100px;
-            font-weight: 700;
-            color: black;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             text-align: center;
             animation: fadeIn 0.5s ease;
+            line-height: 1.1;
         }
 
         .current-service {
             font-size: 24px;
             text-align: center;
             color: #333;
-            margin-top: 10px;
-        }
-
-        .current-window {
-            font-size: 18px;
-            text-align: center;
-            color: #666;
             margin-top: 15px;
             font-weight: 500;
         }
@@ -117,7 +116,7 @@
 
         {
             opacity: 0;
-            transform: scale(0.8);
+            transform: scale(0.9);
         }
 
         to {
@@ -132,27 +131,31 @@
             border-radius: 15px;
             padding: 25px;
             border: 2px solid black;
-            box-shadow: 2px 2px 0px black;
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
         }
 
         .queue-header {
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid black;
+            border-bottom: 2px solid #f0f0f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: #333;
         }
 
         .current-time {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
-            color: black;
+            color: #667eea;
             font-family: 'Courier New', monospace;
+            background: #f0f4ff;
+            padding: 5px 12px;
+            border-radius: 6px;
         }
 
         .queue-list {
@@ -160,24 +163,31 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            overflow: hidden;
+            overflow-y: auto;
+            padding-right: 5px;
         }
 
         .queue-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 16px;
-            background: #f8f9fa;
-            border-radius: 6px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 8px;
             border: 1px solid #e0e0e0;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
+
+            .queue-item:hover {
+                border-color: #667eea;
+                transform: translateX(5px);
+            }
 
             .queue-item.new {
                 animation: slideIn 0.5s ease;
-                background: white;
-                border: 2px solid black;
+                background: #f8f9ff;
+                border: 1px solid #667eea;
             }
 
         @@keyframes slideIn {
@@ -198,12 +208,15 @@
         .queue-number {
             font-size: 28px;
             font-weight: 700;
-            color: black;
+            color: #333;
         }
 
         .queue-service {
             font-size: 13px;
-            color: #666;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
         }
 
         .call-notification {
@@ -212,13 +225,13 @@
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
             background: white;
-            padding: 50px 80px;
-            border-radius: 15px;
+            padding: 60px 100px;
+            border-radius: 20px;
             text-align: center;
             z-index: 1000;
             transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            border: 3px solid black;
-            box-shadow: 15px 15px 0px black;
+            border: 3px solid #667eea;
+            box-shadow: 4px 4px 0px rgba(102, 126, 234, 0.3);
         }
 
             .call-notification.show {
@@ -226,24 +239,28 @@
             }
 
             .call-notification h2 {
-                font-size: 24px;
-                margin-bottom: 15px;
-                color: #666;
+                font-size: 20px;
+                margin-bottom: 20px;
+                color: #667eea;
                 text-transform: uppercase;
-                letter-spacing: 1px;
+                letter-spacing: 3px;
+                font-weight: 700;
             }
 
             .call-notification .ticket-number {
-                font-size: 120px;
-                font-weight: 700;
-                color: black;
+                font-size: 140px;
+                font-weight: 800;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                line-height: 1;
             }
 
         @@media (min-width: 1920px) {
             .current-ticket-number
 
         {
-            font-size: 130px;
+            font-size: 140px;
         }
 
         .queue-number {
@@ -256,11 +273,15 @@
             .current-ticket-number
 
         {
-            font-size: 70px;
+            font-size: 80px;
         }
 
         .queue-number {
-            font-size: 22px;
+            font-size: 24px;
+        }
+
+        .call-notification .ticket-number {
+            font-size: 100px;
         }
 
         }
@@ -270,9 +291,9 @@
     <div class="main-content">
         <div class="left-section">
             <div class="video-container">
-                <!-- <video autoplay muted loop>
-                    <source src="/videos/promo.mp4" type="video/mp4">
-                </video> -->
+                <div class="video-placeholder">
+                    <h3>Информационное табло</h3>
+                </div>
             </div>
 
             <div class="current-ticket-section">
@@ -296,7 +317,7 @@
                 {
                     @foreach (var ticket in Model.WaitingTickets)
                     {
-                        <div class="queue-item">
+                        <div class="queue-item" data-ticket-id="@ticket.Id">
                             <div class="queue-number">@ticket.Number</div>
                             <div class="queue-service">@ticket.Service?.Name</div>
                         </div>
@@ -304,13 +325,11 @@
                 }
                 else
                 {
-                    <div style="text-align: center; color: #999; padding: 40px;">
+                    <div style="text-align: center; color: #ccc; padding: 60px; font-weight: 500;">
                         Очередь пуста
                     </div>
                 }
             </div>
-
-            
         </div>
     </div>
 
@@ -319,87 +338,113 @@
         <div class="ticket-number" id="callTicketNumber">A001</div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.0/dist/browser/signalr.min.js"></script>
+
     <script>
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('currentTime').textContent =
-                now.toLocaleTimeString('ru-RU');
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/queueHub")
+            .withAutomaticReconnect()
+            .build();
 
-        let previousCurrentTicket = '@(Model.ActiveTickets.FirstOrDefault()?.Number ?? "")';
-        let previousQueue = '@string.Join(",", Model.WaitingTickets.Select(t => t.Number))';
+        connection.on("OnTicketUpdated", function(update) {
+            if (update.status === "Active") {
+                showCallNotification(update.number);
+                updateCurrentTicketDisplay(update.number, update.serviceName);
+                removeTicketFromList('queueList', update.id);
+            }
 
-        async function refreshDisplay() {
-            try {
-                const response = await fetch('/Admin/GetDisplayData');
-                if (response.ok) {
-                    const data = await response.json();
-                    updateDisplay(data);
+            if (update.status === "Completed") {
+                removeTicketFromList('queueList', update.id);
+                const currentNumberEl = document.getElementById('currentTicketNumber');
+                const currentServiceEl = document.getElementById('currentService');
+
+                if (currentNumberEl.textContent === update.number) {
+                    currentNumberEl.style.opacity = '0';
+                    currentServiceEl.style.opacity = '0';
+
+                    setTimeout(() => {
+                        currentNumberEl.textContent = "---";
+                        currentServiceEl.textContent = "Ожидание...";
+                        currentNumberEl.style.transition = 'opacity 0.5s';
+                        currentServiceEl.style.transition = 'opacity 0.5s';
+                        currentNumberEl.style.opacity = '1';
+                        currentServiceEl.style.opacity = '1';
+                    }, 500);
                 }
-            } catch (error) {
-                console.error('Ошибка обновления:', error);
+            }
+        });
+
+        function updateCurrentTicketDisplay(number, service) {
+            const numEl = document.getElementById('currentTicketNumber');
+            const servEl = document.getElementById('currentService');
+
+            if (numEl.textContent !== number) {
+                numEl.textContent = number;
+                servEl.textContent = service || 'Ожидание...';
+
+                numEl.style.animation = 'none';
+                numEl.offsetHeight;
+                numEl.style.animation = 'fadeIn 0.5s ease';
+
+                servEl.style.animation = 'none';
+                servEl.offsetHeight;
+                servEl.style.animation = 'fadeIn 0.5s ease';
             }
         }
 
-        function updateDisplay(data) {
-            const currentNumber = data.currentTicket?.number || '---';
-            const currentService = data.currentTicket?.service || 'Ожидание...';
+        function removeTicketFromList(listId, ticketId) {
+            const list = document.getElementById(listId);
+            if (!list) return;
 
-            const currentTicketEl = document.getElementById('currentTicketNumber');
-            const currentServiceEl = document.getElementById('currentService');
+            const item = list.querySelector(`.queue-item[data-ticket-id="${ticketId}"]`);
 
-            if (currentNumber !== previousCurrentTicket && currentNumber !== '---') {
-                showCallNotification(currentNumber);
-                currentTicketEl.style.animation = 'none';
-                currentTicketEl.offsetHeight;
-                currentTicketEl.style.animation = 'fadeIn 0.5s ease';
-            }
+            if (item) {
+                item.style.transition = 'opacity 0.3s, transform 0.3s';
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-20px)';
 
-            currentTicketEl.textContent = currentNumber;
-            currentServiceEl.textContent = currentService;
-            previousCurrentTicket = currentNumber;
-
-            const queueList = document.getElementById('queueList');
-            const newQueue = data.waitingTickets.map(t => t.number).join(',');
-
-            if (newQueue !== previousQueue) {
-                queueList.innerHTML = data.waitingTickets.length > 0
-                    ? data.waitingTickets.map((t, index) => `
-                        <div class="queue-item ${index === 0 ? 'new' : ''}">
-                            <div class="queue-number">${t.number}</div>
-                            <div class="queue-service">${t.service || ''}</div>
-                        </div>
-                    `).join('')
-                    : '<div style="text-align: center; color: #999; padding: 40px;">Очередь пуста</div>';
-
-                previousQueue = newQueue;
-            }
-
-            const recentList = document.getElementById('recentList');
-            if (data.recentTickets.length > 0) {
-                recentList.innerHTML = data.recentTickets.map(t => `
-                    <div class="recent-item">
-                        <div class="recent-number">${t.number}</div>
-                        <div class="recent-time">${t.time}</div>
-                    </div>
-                `).join('');
+                setTimeout(() => {
+                    item.remove();
+                    if (list.querySelectorAll('.queue-item').length === 0) {
+                        if (!list.querySelector('div[style*="text-align: center"]')) {
+                            list.innerHTML = '<div style="text-align: center; color: #ccc; padding: 60px; font-weight: 500;">Очередь пуста</div>';
+                        }
+                    }
+                }, 300);
             }
         }
+
+        async function startConnection() {
+            try {
+                await connection.start();
+                await connection.invoke("JoinGroup", "displays");
+            } catch (err) {
+                setTimeout(startConnection, 5000);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', startConnection);
 
         function showCallNotification(ticketNumber) {
             const notification = document.getElementById('callNotification');
             document.getElementById('callTicketNumber').textContent = ticketNumber;
-
             notification.classList.add('show');
-
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 4000);
+            setTimeout(() => notification.classList.remove('show'), 4000);
         }
 
-        setInterval(refreshDisplay, 5000);
+        window.addEventListener('beforeunload', async () => {
+            try {
+                await connection.invoke("LeaveGroup", "displays");
+                await connection.stop();
+            } catch(e) {}
+        });
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('ru-RU');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
     </script>
 </body>
 </html>

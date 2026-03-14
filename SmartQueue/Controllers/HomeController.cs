@@ -4,32 +4,32 @@ using SmartQueue.Data.Models;
 
 namespace SmartQueue.Controllers
 {
-    public class HomeController: Controller
+    public class HomeController(IVisitor visitor, ITicket ticket, IService service) : Controller
     {
-        private readonly IVisitor _visitor;
-        private readonly ITicket _ticket;
-        private readonly IService _service;
-        public HomeController(IVisitor visitor, ITicket ticket, IService service)
+        private readonly IVisitor _visitor = visitor;
+        private readonly ITicket _ticket = ticket;
+        private readonly IService _service = service;
+
+        public IActionResult Home()
         {
-            _visitor = visitor;
-            _ticket = ticket;
-            _service = service;
+            return View();
         }
+
         public async Task<IActionResult> Autorization()
         {
-            //var visitor = await GetOrCreateVisitorAsync();
-            //if (visitor == null) return BadRequest("Не удалось определить IP");
+            var visitor = await GetOrCreateVisitorAsync();
+            if (visitor == null) return BadRequest("Не удалось определить IP");
 
-            //var activeTicket = _ticket.Tickets.FirstOrDefault(t =>
-            //    t.Visitor.Id == visitor.Id &&
-            //    (t.Status == Ticket.StatusType.Waiting || t.Status == Ticket.StatusType.Active));
+            var activeTicket = _ticket.Tickets.FirstOrDefault(t =>
+                t.Visitor.Id == visitor.Id &&
+                (t.Status == Ticket.StatusType.Waiting || t.Status == Ticket.StatusType.Active));
 
-            //if (activeTicket != null)
-            //    return RedirectToAction("GetTicket", "Ticket", new { id = activeTicket.Id });
+            if (activeTicket != null)
+                return RedirectToAction("GetTicket", "Ticket", new { id = activeTicket.Id });
 
-            //return View("~/Views/Service/List.cshtml", _service.Services.ToList());
+            return View("~/Views/Service/List.cshtml", _service.Services.ToList());
 
-            return View("~/Views/Admin/Login.cshtml");
+            //return View("~/Views/Admin/Login.cshtml");
         }
 
         private async Task<Visitor> GetOrCreateVisitorAsync()

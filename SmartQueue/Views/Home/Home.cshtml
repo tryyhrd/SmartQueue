@@ -1,0 +1,133 @@
+﻿@{
+    ViewBag.Title = "Сканируйте для входа";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            animation: fadeIn 0.8s ease;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 40px;
+            line-height: 1.4;
+        }
+
+        .qr-wrapper {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid black;
+            box-shadow: 8px 8px 0px rgba(102, 126, 234, 0.2);
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+            #qrcode img {
+                display: block; 
+            }
+
+        .hint {
+            font-size: 16px;
+            color: #888;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        @@media (max-width: 600px) {
+            h1
+
+        {
+            font-size: 22px;
+        }
+
+        .qr-wrapper {
+            padding: 15px;
+            box-shadow: 6px 6px 0px rgba(102, 126, 234, 0.2);
+        }
+
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Отсканируйте QR-код,<br>чтобы выбрать услугу</h1>
+
+        <div class="qr-wrapper">
+            <div id="qrcode"></div>
+        </div>
+
+        <p class="hint">Наведите камеру телефона на код</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const serviceListUrl = '@Url.Action("Autorization", "Home", null, Context.Request.Scheme)';
+
+            new QRCode(document.getElementById("qrcode"), {
+                text: serviceListUrl,
+                width: 250,
+                height: 250,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        });
+    </script>
+
+</body>
+</html>

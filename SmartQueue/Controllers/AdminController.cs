@@ -1,18 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using SmartQueue.Data.Interfaces;
+using SmartQueue.Hubs;
 using SmartQueue.ViewModels;
+using static SmartQueue.Hubs.QueueHub;
 
 namespace SmartQueue.Controllers
 {
-    public class AdminController: Controller
+    public class AdminController(ITicket ticket, IService service, IHubContext<QueueHub> hubContext) : Controller
     {
-        private readonly ITicket _ticket;
-        private readonly IService _service;
-        public AdminController(ITicket ticket, IService service)
-        {
-            _ticket = ticket;
-            _service = service;
-        }
+        private readonly ITicket _ticket = ticket;
+        private readonly IService _service = service;
+        private readonly IHubContext<QueueHub> _hubContext = hubContext;
+
         public IActionResult Dashboard()
         {
             var tickets = _ticket.Tickets.ToList();
@@ -35,6 +35,9 @@ namespace SmartQueue.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AcceptTicket(int id)
         {
+            if (_ticket.Tickets.Any(x => x.Status == Data.Models.Ticket.StatusType.Active))
+                return BadRequest(new {message = "Уже есть активный посетитель"});
+
             var ticket = _ticket.Tickets.FirstOrDefault(t => t.Id == id);
 
             if (ticket == null)
@@ -44,8 +47,19 @@ namespace SmartQueue.Controllers
                 return NotFound("Талон не найден");
             }
 
+            var update = new TicketUpdate
+            {
+                Id = ticket.Id,
+                Number = ticket.Number,
+                ServiceName = ticket.Service?.Name,
+                Status = "Active",  
+                CreatedAt = ticket.CreatedAt
+            };
+
             ticket.Status = Data.Models.Ticket.StatusType.Active;
             await _ticket.UpdateTicketAsync(ticket);
+
+            await _hubContext.Clients.All.SendAsync("OnTicketUpdated", update);
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
                 Request.Headers["Accept"].ToString().Contains("application/json"))
@@ -57,6 +71,35 @@ namespace SmartQueue.Controllers
                     message = "Талон принят"
                 });
             }
+
+            return RedirectToAction("Dashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CompleteTicket(int id)
+        {
+            var ticket = _ticket.Tickets.FirstOrDefault(t => t.Id == id);
+
+            if (ticket != null)
+            {
+                var update = new TicketUpdate
+                {
+                    Id = ticket.Id,
+                    Number = ticket.Number,
+                    ServiceName = ticket.Service?.Name,
+                    Status = "Completed",
+                    CreatedAt = ticket.CreatedAt
+                };
+
+                ticket.Status = Data.Models.Ticket.StatusType.Completed;
+                await _ticket.UpdateTicketAsync(ticket);
+
+                await _hubContext.Clients.All.SendAsync("OnTicketUpdated", update);
+            }
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return Ok(new { success = true });
 
             return RedirectToAction("Dashboard");
         }

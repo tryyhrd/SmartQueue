@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartQueue.Data.Interfaces;
 using SmartQueue.Data.Common;
 using SmartQueue.Data.Services;
+using SmartQueue.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,10 +32,12 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-//builder.WebHost.ConfigureKestrel(serverOptions =>
-//{
-//    serverOptions.Listen(System.Net.IPAddress.Any, 5000);
-//});
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;  // Только для разработки!
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+});
 
 var app = builder.Build();
 
@@ -53,11 +56,13 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
 
+app.MapHub<QueueHub>("/queueHub");
+
 app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Admin}/{action=Dashboard}/{id?}");
+    pattern: "{controller=Home}/{action=Home}/{id?}");
 
 app.MapRazorPages();
 
