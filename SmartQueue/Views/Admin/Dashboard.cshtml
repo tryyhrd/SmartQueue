@@ -414,7 +414,7 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded',
-                                'RequestVerificationToken': csrfToken,  // ✅ Исправлено: token → csrfToken
+                                'RequestVerificationToken': csrfToken,  
                                 'X-Requested-With': 'XMLHttpRequest'
                             },
                             body: `id=${ticketId}`
