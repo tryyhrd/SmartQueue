@@ -55,7 +55,7 @@ namespace SmartQueue.Controllers
                 Number = $"A{tickets.Count() + 1:000}",
                 Visitor = visitor,
                 Service = service,
-                CreatedAd = DateTime.Now,
+                CreatedAt = DateTime.Now,
                 Status = Ticket.StatusType.Waiting
             };
 

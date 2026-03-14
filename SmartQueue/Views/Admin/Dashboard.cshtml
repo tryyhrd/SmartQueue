@@ -1,0 +1,478 @@
+﻿@model SmartQueue.ViewModels.DashboardViewModel
+
+@{
+    ViewBag.Title = "Панель управления";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: white;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .admin-header {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .admin-header h1 {
+                font-size: 20px;
+                font-weight: 600;
+                color: black;
+            }
+
+        .btn-logout {
+            background: white;
+            border: 1px solid black;
+            color: black;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+            .btn-logout:hover {
+                background: black;
+                color: white;
+            }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: black;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 0 30px 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .queue-section {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: black;
+        }
+
+        .section-badge {
+            background: black;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .ticket-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .ticket-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+
+            .ticket-item:hover {
+                border-color: black;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            }
+
+        .ticket-info {
+            flex: 1;
+        }
+
+        .ticket-number {
+            font-size: 20px;
+            font-weight: 700;
+            color: black;
+            margin-bottom: 4px;
+        }
+
+        .ticket-service {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .ticket-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .ticket-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid black;
+        }
+
+        .btn-accept {
+            background: black;
+            color: white;
+        }
+
+            .btn-accept:hover {
+                background: white;
+                color: black;
+                transform: translateY(-2px);
+            }
+
+        .btn-complete {
+            background: white;
+            color: black;
+        }
+
+            .btn-complete:hover {
+                background: black;
+                color: white;
+                transform: translateY(-2px);
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+            .empty-state p {
+                font-size: 14px;
+                margin-top: 10px;
+            }
+
+        .completed-section {
+            grid-column: 1 / -1;
+        }
+
+        .completed-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .completed-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .completed-number {
+            font-size: 18px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .completed-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .ticket-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .ticket-list::-webkit-scrollbar-track {
+            background: #f5f5f5;
+            border-radius: 3px;
+        }
+
+        .ticket-list::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 3px;
+        }
+
+            .ticket-list::-webkit-scrollbar-thumb:hover {
+                background: #ccc;
+            }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h1>Панель управления</h1>
+        <form asp-action="Logout" method="post" style="display: inline;">
+            <button type="submit" class="btn-logout">Выйти</button>
+        </form>
+    </div>
+
+    <div class="main-content">
+        <div class="queue-section">
+            <div class="section-header">
+                <span class="section-title">Очередь ожидания</span>
+                <span class="section-badge">@Model.WaitingTickets.Count()</span>
+            </div>
+            <div class="ticket-list">
+                @if (Model.WaitingTickets.Any())
+                {
+                    @foreach (var ticket in Model.WaitingTickets)
+                    {
+                        <div class="ticket-item">
+                            <div class="ticket-info">
+                                <div class="ticket-number">@ticket.Number</div>
+                                <div class="ticket-service">@ticket.Service?.Name</div>
+                                <div class="ticket-time">@ticket.CreatedAt.ToString("HH:mm")</div>
+                            </div>
+                            <div class="ticket-actions">
+                                @Html.AntiForgeryToken()
+
+                                <button type="button"
+                                        class="btn-action btn-accept js-accept-btn"
+                                        data-ticket-id="@ticket.Id">
+                                    Принять
+                                </button>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div style="font-size: 40px;">✓</div>
+                        <p>Очередь пуста</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="queue-section">
+            <div class="section-header">
+                <span class="section-title">На обслуживании</span>
+                <span class="section-badge">@Model.ActiveTickets.Count()</span>
+            </div>
+            <div class="ticket-list">
+                @if (Model.ActiveTickets.Any())
+                {
+                    @foreach (var ticket in Model.ActiveTickets)
+                    {
+                        <div class="ticket-item">
+                            <div class="ticket-info">
+                                <div class="ticket-number">@ticket.Number</div>
+                                <div class="ticket-service">@ticket.Service?.Name</div>
+                                <div class="ticket-time">@ticket.CreatedAt.ToString("HH:mm")</div>
+                            </div>
+                            <div class="ticket-actions">
+                                <form asp-action="CompleteTicket" method="post">
+                                    <input type="hidden" name="id" value="@ticket.Id" />
+                                    <button type="submit" class="btn-action btn-complete">Завершить</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div style="font-size: 40px;">—</div>
+                        <p>Нет активных талонов</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="queue-section completed-section">
+            <div class="section-header">
+                <span class="section-title">Завершённые (последние 10)</span>
+            </div>
+            <div class="completed-list">
+                @if (Model.CompletedTickets.Any())
+                {
+                    @foreach (var ticket in Model.CompletedTickets)
+                    {
+                        <div class="completed-item">
+                            <div class="completed-number">@ticket.Number</div>
+                            <div class="completed-time">@ticket.CreatedAt.ToString("HH:mm")</div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <p>Нет завершённых талонов</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        setInterval(function() {
+            location.reload();
+        }, 10000);
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            console.log('🔐 CSRF Token loaded:', csrfToken ? 'OK (length: ' + csrfToken.length + ')' : 'NOT FOUND');
+
+            document.querySelectorAll('.js-accept-btn').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const ticketId = this.dataset.ticketId;
+                    const ticketItem = this.closest('.ticket-item');
+
+                    // Проверка: есть ли токен
+                    if (!csrfToken) {
+                        alert('Ошибка: не найден CSRF-токен. Обновите страницу.');
+                        return;
+                    }
+
+                    // Визуальная блокировка
+                    this.disabled = true;
+                    this.textContent = '...';
+
+                    try {
+                        console.log('📤 Отправка запроса: id=' + ticketId);
+
+                        const response = await fetch('/Admin/AcceptTicket', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'RequestVerificationToken': csrfToken,  // ✅ Исправлено: token → csrfToken
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: `id=${ticketId}`
+                        });
+
+                        console.log('📥 Ответ сервера:', response.status);
+
+                        if (response.ok || response.status === 302) {   
+
+                            const activeList = document.querySelectorAll('.ticket-list')[1];
+                            const emptyState = activeList.querySelector('.empty-state');
+
+                            if (emptyState) emptyState.remove();
+                            const actionsDiv = ticketItem.querySelector('.ticket-actions');
+                            actionsDiv.innerHTML = `
+                                <form action="/Admin/CompleteTicket" method="post">
+                                    <input type="hidden" name="__RequestVerificationToken" value="${csrfToken}">
+                                    <input type="hidden" name="id" value="${ticketId}" />
+                                    <button type="submit" class="btn-action btn-complete">Завершить</button>
+                                </form>
+                            `;
+
+                            ticketItem.style.opacity = '0';
+                            setTimeout(() => {
+                                activeList.appendChild(ticketItem); // Переносим элемент в другой список
+                                ticketItem.style.opacity = '1';
+                                ticketItem.style.transform = 'none';
+                            }, 300);
+
+                            updateBadgeCount('waitingBadge', -1);
+                            updateBadgeCount('activeBadge', 1);
+                        } else {
+                            const errorText = await response.text();
+                            console.error('❌ Ошибка сервера:', response.status, errorText);
+                            alert(`Ошибка ${response.status}`);
+                            resetButton(this);
+                        }
+                    } catch (error) {
+                        console.error('🔥 Ошибка fetch:', error);
+                        alert('Ошибка соединения: ' + error.message);
+                        resetButton(this);
+                    }
+                });
+            });
+
+            function resetButton(btn) {
+                btn.disabled = false;
+                btn.textContent = 'Принять';
+            }
+        });
+
+        function updateBadgeCount(badgeId, change) {
+            const badge = document.getElementById(badgeId);
+            if (badge) {
+                let count = parseInt(badge.textContent) || 0;
+                badge.textContent = Math.max(0, count + change);
+            }
+        }
+    </script>
+</body>
+</html>

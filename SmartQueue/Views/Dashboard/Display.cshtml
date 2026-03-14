@@ -1,0 +1,405 @@
+﻿@model SmartQueue.ViewModels.DashboardViewModel
+
+@{
+    ViewBag.Title = "Электронная очередь";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: white;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: black;
+            overflow: hidden;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            padding: 20px;
+            height: 100vh;
+        }
+
+        .left-section {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .video-container {
+            flex: 1;
+            background: black;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid black;
+        }
+
+            .video-container video,
+            .video-container img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .video-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+        }
+
+            .video-placeholder h3 {
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+
+        .current-ticket-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid black;
+            box-shadow: 2px 2px 0px black;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .current-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .current-ticket-number {
+            font-size: 100px;
+            font-weight: 700;
+            color: black;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .current-service {
+            font-size: 24px;
+            text-align: center;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .current-window {
+            font-size: 18px;
+            text-align: center;
+            color: #666;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        }
+
+        .right-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid black;
+            box-shadow: 2px 2px 0px black;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .queue-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid black;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .current-time {
+            font-size: 20px;
+            font-weight: 600;
+            color: black;
+            font-family: 'Courier New', monospace;
+        }
+
+        .queue-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .queue-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+            .queue-item.new {
+                animation: slideIn 0.5s ease;
+                background: white;
+                border: 2px solid black;
+            }
+
+        @@keyframes slideIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        }
+
+        .queue-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: black;
+        }
+
+        .queue-service {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .call-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 50px 80px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 1000;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 3px solid black;
+            box-shadow: 15px 15px 0px black;
+        }
+
+            .call-notification.show {
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            .call-notification h2 {
+                font-size: 24px;
+                margin-bottom: 15px;
+                color: #666;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .call-notification .ticket-number {
+                font-size: 120px;
+                font-weight: 700;
+                color: black;
+            }
+
+        @@media (min-width: 1920px) {
+            .current-ticket-number
+
+        {
+            font-size: 130px;
+        }
+
+        .queue-number {
+            font-size: 36px;
+        }
+
+        }
+
+        @@media (max-width: 1366px) {
+            .current-ticket-number
+
+        {
+            font-size: 70px;
+        }
+
+        .queue-number {
+            font-size: 22px;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="left-section">
+            <div class="video-container">
+                <!-- <video autoplay muted loop>
+                    <source src="/videos/promo.mp4" type="video/mp4">
+                </video> -->
+            </div>
+
+            <div class="current-ticket-section">
+                <div class="current-label">Сейчас обслуживается</div>
+                <div class="current-ticket-number" id="currentTicketNumber">
+                    @(Model.ActiveTickets.FirstOrDefault()?.Number ?? "---")
+                </div>
+                <div class="current-service" id="currentService">
+                    @(Model.ActiveTickets.FirstOrDefault()?.Service?.Name ?? "Ожидание...")
+                </div>
+            </div>
+        </div>
+
+        <div class="right-section">
+            <div class="queue-header">
+                <span>Очередь ожидания</span>
+                <span class="current-time" id="currentTime">00:00:00</span>
+            </div>
+            <div class="queue-list" id="queueList">
+                @if (Model.WaitingTickets.Any())
+                {
+                    @foreach (var ticket in Model.WaitingTickets)
+                    {
+                        <div class="queue-item">
+                            <div class="queue-number">@ticket.Number</div>
+                            <div class="queue-service">@ticket.Service?.Name</div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div style="text-align: center; color: #999; padding: 40px;">
+                        Очередь пуста
+                    </div>
+                }
+            </div>
+
+            
+        </div>
+    </div>
+
+    <div class="call-notification" id="callNotification">
+        <h2>Приглашается</h2>
+        <div class="ticket-number" id="callTicketNumber">A001</div>
+    </div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent =
+                now.toLocaleTimeString('ru-RU');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        let previousCurrentTicket = '@(Model.ActiveTickets.FirstOrDefault()?.Number ?? "")';
+        let previousQueue = '@string.Join(",", Model.WaitingTickets.Select(t => t.Number))';
+
+        async function refreshDisplay() {
+            try {
+                const response = await fetch('/Admin/GetDisplayData');
+                if (response.ok) {
+                    const data = await response.json();
+                    updateDisplay(data);
+                }
+            } catch (error) {
+                console.error('Ошибка обновления:', error);
+            }
+        }
+
+        function updateDisplay(data) {
+            const currentNumber = data.currentTicket?.number || '---';
+            const currentService = data.currentTicket?.service || 'Ожидание...';
+
+            const currentTicketEl = document.getElementById('currentTicketNumber');
+            const currentServiceEl = document.getElementById('currentService');
+
+            if (currentNumber !== previousCurrentTicket && currentNumber !== '---') {
+                showCallNotification(currentNumber);
+                currentTicketEl.style.animation = 'none';
+                currentTicketEl.offsetHeight;
+                currentTicketEl.style.animation = 'fadeIn 0.5s ease';
+            }
+
+            currentTicketEl.textContent = currentNumber;
+            currentServiceEl.textContent = currentService;
+            previousCurrentTicket = currentNumber;
+
+            const queueList = document.getElementById('queueList');
+            const newQueue = data.waitingTickets.map(t => t.number).join(',');
+
+            if (newQueue !== previousQueue) {
+                queueList.innerHTML = data.waitingTickets.length > 0
+                    ? data.waitingTickets.map((t, index) => `
+                        <div class="queue-item ${index === 0 ? 'new' : ''}">
+                            <div class="queue-number">${t.number}</div>
+                            <div class="queue-service">${t.service || ''}</div>
+                        </div>
+                    `).join('')
+                    : '<div style="text-align: center; color: #999; padding: 40px;">Очередь пуста</div>';
+
+                previousQueue = newQueue;
+            }
+
+            const recentList = document.getElementById('recentList');
+            if (data.recentTickets.length > 0) {
+                recentList.innerHTML = data.recentTickets.map(t => `
+                    <div class="recent-item">
+                        <div class="recent-number">${t.number}</div>
+                        <div class="recent-time">${t.time}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function showCallNotification(ticketNumber) {
+            const notification = document.getElementById('callNotification');
+            document.getElementById('callTicketNumber').textContent = ticketNumber;
+
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        setInterval(refreshDisplay, 5000);
+    </script>
+</body>
+</html>

@@ -6,5 +6,6 @@ namespace SmartQueue.Data.Interfaces
     {
         IEnumerable<Ticket> Tickets { get; }
         Task AddTicketAsync(Ticket ticket);
+        Task UpdateTicketAsync(Ticket ticket);
     }
 }

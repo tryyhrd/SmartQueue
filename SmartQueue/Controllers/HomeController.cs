@@ -17,17 +17,19 @@ namespace SmartQueue.Controllers
         }
         public async Task<IActionResult> Autorization()
         {
-            var visitor = await GetOrCreateVisitorAsync();
-            if (visitor == null) return BadRequest("Не удалось определить IP");
+            //var visitor = await GetOrCreateVisitorAsync();
+            //if (visitor == null) return BadRequest("Не удалось определить IP");
 
-            var activeTicket = _ticket.Tickets.FirstOrDefault(t =>
-                t.Visitor.Id == visitor.Id &&
-                (t.Status == Ticket.StatusType.Waiting || t.Status == Ticket.StatusType.Active));
+            //var activeTicket = _ticket.Tickets.FirstOrDefault(t =>
+            //    t.Visitor.Id == visitor.Id &&
+            //    (t.Status == Ticket.StatusType.Waiting || t.Status == Ticket.StatusType.Active));
 
-            if (activeTicket != null)
-                return RedirectToAction("GetTicket", "Ticket", new { id = activeTicket.Id });
+            //if (activeTicket != null)
+            //    return RedirectToAction("GetTicket", "Ticket", new { id = activeTicket.Id });
 
-            return View("~/Views/Service/List.cshtml", _service.Services.ToList());
+            //return View("~/Views/Service/List.cshtml", _service.Services.ToList());
+
+            return View("~/Views/Admin/Login.cshtml");
         }
 
         private async Task<Visitor> GetOrCreateVisitorAsync()

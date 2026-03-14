@@ -13,7 +13,7 @@
             Completed = 3
         }
         public StatusType Status { get; set; }
-        public DateTime CreatedAd { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateTime? DateEnd { get; set; }
     }
 }
