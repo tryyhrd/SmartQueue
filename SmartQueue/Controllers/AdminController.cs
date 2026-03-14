@@ -93,8 +93,9 @@ namespace SmartQueue.Controllers
                 };
 
                 ticket.Status = Data.Models.Ticket.StatusType.Completed;
-                await _ticket.UpdateTicketAsync(ticket);
+                ticket.DateEnd = DateTime.Now;
 
+                await _ticket.UpdateTicketAsync(ticket);
                 await _hubContext.Clients.All.SendAsync("OnTicketUpdated", update);
             }
 

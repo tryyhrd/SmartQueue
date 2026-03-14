@@ -346,10 +346,41 @@
             .withAutomaticReconnect()
             .build();
 
+        function speakTicket(number, serviceName) {
+            if (!('speechSynthesis' in window)) {
+                console.warn('Браузер не поддерживает синтез речи');
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+
+            const numberText = number.split('').join(' ');
+            const message = `Талон ${numberText}. Приглашается к окну.`;
+
+            const utterance = new SpeechSynthesisUtterance(message);
+
+            utterance.lang = 'ru-RU'; 
+            utterance.rate = 1;    
+            utterance.pitch = 1;     
+            utterance.volume = 1;    
+
+            const voices = window.speechSynthesis.getVoices();
+            const ruVoice = voices.find(voice => voice.lang.includes('ru'));
+            if (ruVoice) {
+                utterance.voice = ruVoice;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+
         connection.on("OnTicketUpdated", function(update) {
             if (update.status === "Active") {
                 showCallNotification(update.number);
                 updateCurrentTicketDisplay(update.number, update.serviceName);
+                setTimeout(() => {
+                speakTicket(update.number, update.serviceName);
+            }, 300);
                 removeTicketFromList('queueList', update.id);
             }
 

@@ -62,7 +62,7 @@ app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Home}/{id?}");
+    pattern: "{controller=Home}/{action=Autorization}/{id?}");
 
 app.MapRazorPages();
 
