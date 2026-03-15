@@ -6,5 +6,7 @@ namespace SmartQueue.Data.Interfaces
     {
         public IEnumerable<Service> Services { get; }
         Task AddServiceAsync(Service service);
+        Task RemoveServiceAsync(Service service);
+        Task UpdateServiceAsync(Service service);
     }
 }

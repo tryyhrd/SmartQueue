@@ -8,6 +8,7 @@ using SmartQueue.Hubs;
 using SmartQueue.ViewModels;
 using System.Security.Claims;
 using static SmartQueue.Hubs.QueueHub;
+using SmartQueue.Data.Models;
 
 namespace SmartQueue.Controllers
 {
@@ -25,6 +26,11 @@ namespace SmartQueue.Controllers
             {
                 return RedirectToAction("Dashboard");
             }
+
+            var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+
+            if (userIp != "127.0.0.1" && userIp != "::1")
+                return StatusCode(403);
 
             ViewData["ReturnUrl"] = returnUrl;
             return View();
@@ -177,6 +183,72 @@ namespace SmartQueue.Controllers
                 return Redirect(returnUrl);
             }
             return RedirectToAction("Dashboard", "Admin");
+        }
+
+        [HttpGet]
+        public IActionResult Service()
+        {
+            var services = _service.Services.ToList();
+            return View(services);
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View(); 
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Service model)
+        {
+            if (string.IsNullOrEmpty(model.Name))
+            {
+                ModelState.AddModelError("", "Название услуги обязательно");
+                return View(model);
+            }
+
+            await _service.AddServiceAsync(model);
+            return RedirectToAction(nameof(Service));
+        }
+        public IActionResult Edit(int id)
+        {
+            var service = _service.Services.FirstOrDefault(s => s.Id == id);
+            if (service == null) return NotFound();
+            return View(service);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Service model)
+        {
+            if (string.IsNullOrEmpty(model.Name))
+            {
+                ModelState.AddModelError("", "Название услуги обязательно");
+                return View(model);
+            }
+
+            var existing = _service.Services.FirstOrDefault(s => s.Id == model.Id);
+            if (existing != null)
+            {
+                existing.Name = model.Name;
+                existing.Description = model.Description;
+                await _service.UpdateServiceAsync(existing);
+            }
+
+            return RedirectToAction(nameof(Service));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(Service model)
+        {
+            var service = _service.Services.FirstOrDefault(s => s.Id == model.Id);
+            if (service != null)
+            {
+                await _service.RemoveServiceAsync(service);
+            }
+            return RedirectToAction(nameof(Service));
         }
     }
 }

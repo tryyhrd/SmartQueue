@@ -11,6 +11,8 @@ namespace SmartQueue.Controllers
         private readonly ITicket _ticket = ticket;
         private readonly IService _service = service;
         private readonly IpService _ipService = ipService;
+
+        [Route("Home")]
         public IActionResult Home() 
         {
             ViewBag.Ip = _ipService.GetIpAddress();

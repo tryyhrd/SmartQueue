@@ -246,5 +246,22 @@
             };
         }
     }
+
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.0/dist/browser/signalr.min.js"></script>
+
+    <script>
+        if (typeof signalR !== 'undefined') {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/queueHub")
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on("OnTicketUpdated", function(update) {
+                location.reload();
+            });
+
+            connection.start().catch(err => console.error('SignalR error:', err));
+        }
+    </script>
 </body>
 </html>

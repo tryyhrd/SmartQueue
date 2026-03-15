@@ -1,0 +1,229 @@
+﻿@model IEnumerable<SmartQueue.Data.Models.Service>
+
+@{
+    ViewBag.Title = "Управление услугами";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background: #f4f6f9;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 40px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .header h1 {
+                font-size: 20px;
+                font-weight: 600;
+                margin: 0;
+            }
+
+        .btn-back {
+            text-decoration: none;
+            color: black;
+            border: 1px solid black;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+            .btn-back:hover {
+                background: black;
+                color: white;
+            }
+
+        .container-custom {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            flex: 1;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .card-header h5 {
+                margin: 0;
+                font-weight: 600;
+                font-size: 18px;
+            }
+
+        .btn-add {
+            background: black;
+            color: white;
+            border: 1px solid black;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+            .btn-add:hover {
+                background: white;
+                color: black;
+            }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+            .table th {
+                font-weight: 600;
+                color: #666;
+                font-size: 13px;
+                text-transform: uppercase;
+                border-top: none;
+                padding: 15px;
+            }
+
+            .table td {
+                vertical-align: middle;
+                font-size: 14px;
+                padding: 20px 15px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .table tr:last-child td {
+                border-bottom: none;
+            }
+
+            .table tr:hover {
+                background-color: #fafafa;
+            }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px; 
+            align-items: center;
+        }
+
+        .btn-sm-action {
+            padding: 6px 14px;
+            font-size: 13px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        .btn-edit {
+            background-color: #e8ece9;
+            color: #6b8c73;
+            border-color: #dce3de;
+        }
+
+            .btn-edit:hover {
+                background-color: #6b8c73;
+                color: white;
+                border-color: #5a7a62;
+                transform: translateY(-1px);
+            }
+
+        .btn-delete {
+            background-color: #fcebeb;
+            color: #c05c5c;
+            border-color: #f5dcdc;
+        }
+
+            .btn-delete:hover {
+                background-color: #c05c5c;
+                color: white;
+                border-color: #c05c5c;
+                transform: translateY(-1px);
+            }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Управление услугами</h1>
+        <a asp-controller="Admin" asp-action="Dashboard" class="btn-back">← Назад в панель</a>
+    </div>
+
+    <div class="container-custom">
+        <div class="card">
+            <div class="card-header">
+                <h5>Список доступных услуг</h5>
+                <a asp-action="Create" class="btn-add">Добавить услугу</a>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">ID</th>
+                            <th>Название</th>
+                            <th>Описание</th>
+                            <th style="width: 220px;">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td><strong>@item.Name</strong></td>
+                                    <td class="text-muted">@item.Description</td>
+                                    <td>
+                                        <!-- Обертка для кнопок в ряд -->
+                                        <div class="action-buttons">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn-sm-action btn-edit">Изменить</a>
+
+                                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Вы уверены, что хотите удалить эту услугу?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn-sm-action btn-delete">Удалить</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">Список услуг пуст</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

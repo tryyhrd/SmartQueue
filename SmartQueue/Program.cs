@@ -80,4 +80,41 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Authorization}/{id?}");
 app.MapRazorPages();
 
+var baseUrl = "http://localhost:5000";
+
+var runTask = app.RunAsync();
+await Task.Delay(2000);
+ 
+OpenBrowser($"{baseUrl}/Dashboard/Display");   
+OpenBrowser($"{baseUrl}/Home");           
+
+await runTask;
+
+void OpenBrowser(string url)
+{
+    try
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            });
+        }
+        else if (OperatingSystem.IsLinux())
+        {
+            System.Diagnostics.Process.Start("xdg-open", url);
+        }
+        else if (OperatingSystem.IsMacOS())
+        {
+            System.Diagnostics.Process.Start("open", url);
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Не удалось открыть браузер: {ex.Message}");
+    }
+}
+
 app.Run();
