@@ -365,6 +365,7 @@
             utterance.volume = 1;    
 
             const voices = window.speechSynthesis.getVoices();
+
             const ruVoice = voices.find(voice => voice.lang.includes('ru'));
             if (ruVoice) {
                 utterance.voice = ruVoice;
@@ -375,6 +376,10 @@
 
 
         connection.on("OnTicketUpdated", function(update) {
+            if (update.status == "Waiting"){
+                addTicketToList('queueList', update.id, update.number, update.serviceName);
+            }
+            
             if (update.status === "Active") {
                 showCallNotification(update.number);
                 updateCurrentTicketDisplay(update.number, update.serviceName);
@@ -443,6 +448,37 @@
                     }
                 }, 300);
             }
+        }
+
+        function addTicketToList(listId, ticketId, number, serviceName) {
+            const list = document.getElementById(listId);
+            if (!list) return;
+
+            const existingItem = list.querySelector(`.queue-item[data-ticket-id="${ticketId}"]`);
+            if (existingItem) {
+                console.log('Талон уже в списке:', number);
+                return;
+            }
+
+            const emptyState = list.querySelector('div[style*="text-align: center"]');
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            const item = document.createElement('div');
+            item.className = 'queue-item new';
+            item.setAttribute('data-ticket-id', ticketId);
+
+            item.innerHTML = `
+                <div class="queue-number">${number}</div>
+                <div class="queue-service">${serviceName || ''}</div>
+            `;
+
+            list.appendChild(item);
+
+            setTimeout(() => {
+                list.scrollTop = list.scrollHeight;
+            }, 100);
         }
 
         async function startConnection() {

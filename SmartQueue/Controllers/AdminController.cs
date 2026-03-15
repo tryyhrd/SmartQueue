@@ -1,18 +1,84 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using SmartQueue.Data.Interfaces;
 using SmartQueue.Hubs;
 using SmartQueue.ViewModels;
+using System.Security.Claims;
 using static SmartQueue.Hubs.QueueHub;
 
 namespace SmartQueue.Controllers
 {
+    [Authorize]
     public class AdminController(ITicket ticket, IService service, IHubContext<QueueHub> hubContext) : Controller
     {
         private readonly ITicket _ticket = ticket;
         private readonly IService _service = service;
         private readonly IHubContext<QueueHub> _hubContext = hubContext;
 
+        [AllowAnonymous]
+        public IActionResult Login(string returnUrl = null)
+        {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Dashboard");
+            }
+
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken] 
+        public async Task<IActionResult> Login(string password, string returnUrl = null)
+        {
+            if (string.IsNullOrEmpty(password))
+            {
+                ModelState.AddModelError("", "Логин и пароль обязательны");
+                return View();
+            }
+
+            bool isValidUser = (password == "admin");
+
+            if (isValidUser)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Role, "Admin"),
+                    new Claim("AdminId", "1") 
+                };
+
+                var claimsIdentity = new ClaimsIdentity(
+                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = true, 
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
+                };
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    authProperties);
+
+                return RedirectToLocal(returnUrl ?? "/Admin/Dashboard");
+            }
+
+            ModelState.AddModelError("", "Неверный логин или пароль");
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login");
+        }
         public IActionResult Dashboard()
         {
             var tickets = _ticket.Tickets.ToList();
@@ -103,6 +169,14 @@ namespace SmartQueue.Controllers
                 return Ok(new { success = true });
 
             return RedirectToAction("Dashboard");
+        }
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction("Dashboard", "Admin");
         }
     }
 }

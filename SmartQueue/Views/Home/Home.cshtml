@@ -1,6 +1,9 @@
 ﻿@{
     ViewBag.Title = "Сканируйте для входа";
     Layout = null;
+    var ip = ViewBag.Ip as string ?? "localhost";
+    var baseUrl = $"http://{ip}:5000"; 
+    var targetUrl = $"{baseUrl}/Home/Autorization";
 }
 
 <!DOCTYPE html>
@@ -112,11 +115,14 @@
         </div>
 
         <p class="hint">Наведите камеру телефона на код</p>
+        <p class="ip-info">Адрес доступа: @baseUrl</p>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const serviceListUrl = '@Url.Action("Autorization", "Home", null, Context.Request.Scheme)';
+            // const serviceListUrl = '@Url.Action("Authorization", "Home", null, Context.Request.Scheme)';
+
+            const serviceListUrl = '@targetUrl';
 
             new QRCode(document.getElementById("qrcode"), {
                 text: serviceListUrl,

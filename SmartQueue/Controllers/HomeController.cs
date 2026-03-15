@@ -1,21 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartQueue.Data.Interfaces;
 using SmartQueue.Data.Models;
+using SmartQueue.Data.Services;
 
 namespace SmartQueue.Controllers
 {
-    public class HomeController(IVisitor visitor, ITicket ticket, IService service) : Controller
+    public class HomeController(IVisitor visitor, ITicket ticket, IService service, IpService ipService) : Controller
     {
         private readonly IVisitor _visitor = visitor;
         private readonly ITicket _ticket = ticket;
         private readonly IService _service = service;
-        public IActionResult Home() => View();
-        public async Task<IActionResult> Autorization()
+        private readonly IpService _ipService = ipService;
+        public IActionResult Home() 
+        {
+            ViewBag.Ip = _ipService.GetIpAddress();
+            return View();
+        }
+        public async Task<IActionResult> Authorization()
         {
             var visitor = await GetOrCreateVisitorAsync();
             if (visitor == null) return BadRequest("Не удалось определить IP");
 
-            if (visitor.Ip == "127.0.0.1") return View("~/Views/Admin/Login.cshtml");
+            if (visitor.Ip == "127.0.0.1") return RedirectToAction("Login", "Admin");
 
             var activeTicket = _ticket.Tickets.FirstOrDefault(t =>
             t.Visitor.Id == visitor.Id &&

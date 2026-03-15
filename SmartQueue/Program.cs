@@ -3,6 +3,7 @@ using SmartQueue.Data.Interfaces;
 using SmartQueue.Data.Common;
 using SmartQueue.Data.Services;
 using SmartQueue.Hubs;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,10 +35,23 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddSignalR(options =>
 {
-    options.EnableDetailedErrors = true;  // Только для разработки!
     options.KeepAliveInterval = TimeSpan.FromSeconds(15);
     options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
 });
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Admin/Login"; 
+        options.LogoutPath = "/Admin/Logout";
+        options.AccessDeniedPath = "/Admin/Login";
+        options.Cookie.Name = "SmartQueue.AdminAuth";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    });
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddSingleton<IpService>();
 
 var app = builder.Build();
 
@@ -52,18 +66,18 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles(); 
+app.UseStaticFiles();
+
 app.UseRouting();
+
+app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapHub<QueueHub>("/queueHub");
-
 app.UseSession();
 
+app.MapHub<QueueHub>("/queueHub");
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Autorization}/{id?}");
-
+    pattern: "{controller=Home}/{action=Authorization}/{id?}");
 app.MapRazorPages();
 
 app.Run();

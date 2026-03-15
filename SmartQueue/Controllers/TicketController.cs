@@ -1,14 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using SmartQueue.Data.Interfaces;
 using SmartQueue.Data.Models;
+using SmartQueue.Hubs;
+using static SmartQueue.Hubs.QueueHub;
 
 namespace SmartQueue.Controllers
 {
-    public class TicketController(ITicket tickets, IVisitor visitor, IService service) : Controller
+    public class TicketController(ITicket tickets, IVisitor visitor, IService service, IHubContext<QueueHub> hubContext) : Controller
     {
         private readonly ITicket _tickets = tickets;
         private readonly IVisitor _visitor = visitor;
         private readonly IService _service = service;
+        private readonly IHubContext<QueueHub> _hubContext = hubContext;
 
         public async Task<ActionResult> Create(int serviceId)
         {
@@ -60,6 +65,17 @@ namespace SmartQueue.Controllers
             };
 
             await _tickets.AddTicketAsync(ticket);
+
+            var update = new TicketUpdate
+            {
+                Id = ticket.Id,
+                Number = ticket.Number,
+                ServiceName = ticket.Service?.Name,
+                Status = "Waiting",
+                CreatedAt = ticket.CreatedAt
+            };
+
+            await _hubContext.Clients.All.SendAsync("OnTicketUpdated", update);
 
             var model = new ViewModels.QueueTicketViewModel
             {
