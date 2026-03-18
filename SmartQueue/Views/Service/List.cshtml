@@ -2,46 +2,327 @@
 @model IEnumerable<Service>
 
 @{
-	Layout = "_Layout";
+    Layout = null;
+    ViewBag.Title = "Выберите услугу";
 }
-<style>
-    .btn-outline-custom {
-        background-color: white !important;
-        border: 2px solid black !important;
-        color: black !important;
-        text-align: left !important;
-        padding: 1rem !important;
-        transition: all 0.3s ease;
-        width: 100%;
-    }
-        .btn-outline-custom:hover {
-            background-color: #f0f0f0 !important; 
-            border-color: #333 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-secondary: #666666;
+            --accent-red: #ed1c24; 
+            --accent-grey: #58595b; 
+            --accent-blue: #0072ce;
+            --border-color: #e0e0e0;
         }
 
-        .btn-outline-custom strong {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: url("/images/background.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+            color: var(--text-main);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 900px;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+
+            border-radius: 12px; 
+            border: none;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            border-top: 4px solid var(--accent-red);
+            padding: 40px;
+            overflow: hidden;
+            position: relative;
+        }
+
+            /* Декоративный элемент в углу (как на фоне) */
+            .page-wrapper::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100px;
+                height: 100px;
+                background: linear-gradient(135deg, transparent 50%, var(--accent-grey) 50%);
+                opacity: 0.1;
+                pointer-events: none;
+            }
+
+        .page-header {
+            text-align: left;
+            margin-bottom: 30px;
+            flex-shrink: 0;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+            .page-header h1 {
+                font-size: 2.2rem;
+                font-weight: 800;
+                color: var(--text-main);
+                text-transform: uppercase;
+                letter-spacing: -1px;
+                margin-bottom: 5px;
+                position: relative;
+                display: inline-block;
+            }
+
+                /* Красная подчеркивающая линия под заголовком */
+                .page-header h1::after {
+                    content: '';
+                    display: block;
+                    width: 60px;
+                    height: 4px;
+                    background: var(--accent-red);
+                    margin-top: 5px;
+                }
+
+            .page-header p {
+                color: var(--text-secondary);
+                font-size: 1rem;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+        .services-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-height: 0;
+        }
+
+        /* Карточка услуги в строгом стиле */
+        .service-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-grey); /* Серая полоса слева */
+            border-radius: 2px;
+            padding: 20px 25px;
+            text-align: left;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s ease-out;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .service-card:hover {
+                background: #fafafa;
+                border-left-color: var(--accent-red); /* При наведении полоса становится красной */
+                transform: translateX(5px);
+                box-shadow: 5px 5px 15px rgba(0,0,0,0.05);
+            }
+
+            /* Стрелочка справа */
+            .service-card::after {
+                content: '→';
+                font-size: 1.5rem;
+                color: var(--accent-red);
+                opacity: 0;
+                transform: translateX(-10px);
+                transition: all 0.2s ease;
+                font-weight: bold;
+            }
+
+            .service-card:hover::after {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+        .service-content {
+            flex: 1;
+        }
+
+        .service-card strong {
             font-size: 1.2rem;
+            color: var(--text-main);
             display: block;
-            margin-bottom: 0.25rem;
+            margin-bottom: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
         }
 
-        .btn-outline-custom small {
+        .service-card small {
             font-size: 0.9rem;
-            opacity: 0.8;
+            color: var(--text-secondary);
             display: block;
+            line-height: 1.4;
+            font-weight: 400;
+            text-transform: none;
         }
-</style>
 
-@foreach (Service service in Model)
-{
-    <div class="mb-3">
-        <button type="button"
-                class="btn btn-outline-custom"
-                onclick="location.href='@Url.Action("Create", "Ticket", new { serviceId = service.Id })'">
-            <strong>@service.Name</strong>
-            <small>@service.Description</small>
-        </button>
+        /* Анимация появления */
+        @@keyframes slideIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        }
+
+        .service-card {
+            animation: slideIn 0.4s ease-out backwards;
+        }
+
+            .service-card:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .service-card:nth-child(2) {
+                animation-delay: 0.15s;
+            }
+
+            .service-card:nth-child(3) {
+                animation-delay: 0.2s;
+            }
+
+            .service-card:nth-child(4) {
+                animation-delay: 0.25s;
+            }
+
+            .service-card:nth-child(n+5) {
+                animation-delay: 0.3s;
+            }
+
+        /* Скроллбар в стиле "техно" */
+        .services-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .services-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .services-list::-webkit-scrollbar-thumb {
+            background: var(--accent-grey);
+        }
+
+            .services-list::-webkit-scrollbar-thumb:hover {
+                background: var(--accent-red);
+            }
+
+        .btn-back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+            border-bottom: 1px solid transparent;
+        }
+
+            .btn-back-link:hover {
+                color: var(--accent-red);
+                border-bottom-color: var(--accent-red);
+            }
+
+        @@media (max-width: 768px) {
+            .page-wrapper
+
+        {
+            padding: 20px;
+            height: 95vh;
+        }
+
+        .page-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .service-card {
+            padding: 15px;
+        }
+
+            .service-card::after {
+                display: none;
+            }
+        /* Убираем стрелку на мобильных */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-wrapper">
+        <div class="page-header">
+            <h1>Электронная очередь</h1>
+            <p>Выберите необходимую услугу</p>
+        </div>
+
+        <div class="services-list">
+            @if (Model.Any())
+            {
+                foreach (Service service in Model)
+                {
+                    <button type="button"
+                            class="service-card"
+                            onclick="location.href='@Url.Action("Create", "Ticket", new { serviceId = service.Id })'">
+                        <div class="service-content">
+                            <strong>@service.Name</strong>
+                            <small>@service.Description</small>
+                        </div>
+                    </button>
+                }
+            }
+            else
+            {
+                <div style="text-align: center; color: #999; padding: 40px;">
+                    <p>Услуги временно недоступны</p>
+                </div>
+            }
+        </div>
+
+        <div style="flex-shrink: 0; margin-top: 20px;">
+            <a href="/" class="btn-back-link">← На главную</a>
+        </div>
     </div>
-}
+
+</body>
+</html>

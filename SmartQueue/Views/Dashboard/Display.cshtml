@@ -11,8 +11,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title</title>
-
     <style>
+        :root {
+            --bg-color: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-main: #333333;
+            --text-secondary: #666666;
+            --accent-red: #ed1c24;
+            --accent-grey: #58595b;
+            --border-color: rgba(255, 255, 255, 0.6);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -20,35 +29,56 @@
         }
 
         body {
-            background: #f8f9fa;
+            background-color: var(--bg-color);
+            background-image: url("/images/background.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: black;
-            overflow: hidden;
+            font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+            color: var(--text-main);
+            overflow: hidden; 
         }
 
         .main-content {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 30px;
-            padding: 30px;
-            height: 100vh;
+            gap: 20px;
+            height: calc(100vh - 40px);
+            max-height: calc(100vh - 40px);
+            margin: 25px auto;
+            width: calc(100% - 40px);
+            overflow: hidden;
+            align-items: stretch;
+
+            padding: 5px;
+            box-sizing: border-box;
         }
 
         .left-section {
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 20px;
+            height: 100%;
+            min-height: 0;
+            max-height: 100%;
         }
 
         .video-container {
-            flex: 1;
-            background: black;
-            border-radius: 15px;
+            flex: 1; 
+            background: #000;
+            border-radius: 4px;
             overflow: hidden;
             position: relative;
-            border: 2px solid black;
-            box-shadow: 6px 6px 0px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-height: 0;
+            max-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
             .video-container video,
@@ -69,46 +99,68 @@
 
             .video-placeholder h3 {
                 font-size: 24px;
-                margin-bottom: 10px;
                 font-weight: 300;
+                text-transform: uppercase;
+                letter-spacing: 2px;
             }
 
-        .current-ticket-section {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            border: 2px solid black;
-            box-shadow: 6px 6px 0px rgba(102, 126, 234, 0.2);
+        .right-section, .current-ticket-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.10);
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border-top: 4px solid var(--accent-grey);
+        }
+
+        .right-section {
+            height: 100%;
+            min-height: 0; 
+        }
+
+        .current-ticket-section {
+            width: 100%;
+            flex: 0 0 auto;
+            border-top-color: var(--accent-red);
         }
 
         .current-label {
             font-size: 14px;
-            color: #667eea;
+            color: var(--accent-red);
             text-transform: uppercase;
             letter-spacing: 2px;
             margin-bottom: 15px;
             font-weight: 700;
+            border-left: 4px solid var(--accent-red);
+            padding-left: 10px;
         }
 
         .current-ticket-number {
             font-size: 100px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            color: var(--text-main);
             text-align: center;
+            line-height: 1;
+            text-transform: uppercase;
             animation: fadeIn 0.5s ease;
-            line-height: 1.1;
+            text-shadow: 0 2px 10px rgba(255,255,255,0.8);
         }
 
         .current-service {
             font-size: 24px;
             text-align: center;
-            color: #333;
+            color: var(--text-secondary);
             margin-top: 15px;
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         @@keyframes fadeIn {
@@ -126,36 +178,29 @@
 
         }
 
-        .right-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            border: 2px solid black;
-            box-shadow: 6px 6px 0px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-        }
-
         .queue-header {
             font-size: 18px;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
+            border-bottom: 2px solid rgba(0,0,0,0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #333;
+            color: var(--text-main);
+            text-transform: uppercase;
+            flex-shrink: 0;
         }
 
         .current-time {
             font-size: 18px;
-            font-weight: 600;
-            color: #667eea;
+            font-weight: 700;
+            color: var(--accent-red);
             font-family: 'Courier New', monospace;
-            background: #f0f4ff;
+            background: rgba(237, 28, 36, 0.1);
             padding: 5px 12px;
-            border-radius: 6px;
+            border-radius: 2px;
+            border: 1px solid rgba(237, 28, 36, 0.2);
         }
 
         .queue-list {
@@ -165,6 +210,7 @@
             gap: 10px;
             overflow-y: auto;
             padding-right: 5px;
+            min-height: 0;
         }
 
         .queue-item {
@@ -172,24 +218,21 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px 20px;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-left: 5px solid var(--accent-red);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.2s ease-out;
+            flex-shrink: 0;
         }
 
             .queue-item:hover {
-                border-color: #667eea;
                 transform: translateX(5px);
+                background: #fff;
+                border-left-color: var(--accent-red);
+                box-shadow: 0 5px 20px rgba(237, 28, 36, 0.15);
             }
-
-            .queue-item.new {
-                animation: slideIn 0.5s ease;
-                background: #f8f9ff;
-                border: 1px solid #667eea;
-            }
-
         @@keyframes slideIn {
             from
 
@@ -207,16 +250,19 @@
 
         .queue-number {
             font-size: 28px;
-            font-weight: 700;
-            color: #333;
+            font-weight: 800;
+            color: var(--text-main);
+            text-transform: uppercase;
         }
 
         .queue-service {
             font-size: 13px;
-            color: #888;
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 600;
+            text-align: right;
+            max-width: 40%;
         }
 
         .call-notification {
@@ -224,14 +270,15 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
             padding: 60px 100px;
             border-radius: 20px;
             text-align: center;
             z-index: 1000;
             transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            border: 3px solid #667eea;
-            box-shadow: 4px 4px 0px rgba(102, 126, 234, 0.3);
+            border: 4px solid var(--accent-red);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
         }
 
             .call-notification.show {
@@ -241,19 +288,18 @@
             .call-notification h2 {
                 font-size: 20px;
                 margin-bottom: 20px;
-                color: #667eea;
+                color: var(--accent-red);
                 text-transform: uppercase;
                 letter-spacing: 3px;
-                font-weight: 700;
+                font-weight: 800;
             }
 
             .call-notification .ticket-number {
                 font-size: 140px;
-                font-weight: 800;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                font-weight: 900;
+                color: var(--text-main);
                 line-height: 1;
+                text-transform: uppercase;
             }
 
         @@media (min-width: 1920px) {
@@ -285,13 +331,32 @@
         }
 
         }
+
+        .queue-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .queue-list::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .queue-list::-webkit-scrollbar-thumb {
+            background: var(--accent-grey);
+        }
+
+            .queue-list::-webkit-scrollbar-thumb:hover {
+                background: var(--accent-red);
+            }
     </style>
 </head>
 <body>
     <div class="main-content">
         <div class="left-section">
             <div class="video-container">
-                <div class="video-placeholder">
+                <video autoplay muted loop playsinline>
+                    <source src="/videos/main.mp4" type="video/mp4" />
+                </video>
+                <div class="video-placeholder" style="display: none">
                     <h3>Информационное табло</h3>
                 </div>
             </div>
@@ -325,7 +390,7 @@
                 }
                 else
                 {
-                    <div style="text-align: center; color: #ccc; padding: 60px; font-weight: 500;">
+                    <div style="text-align: center; color: #ccc; padding: 60px; font-weight: 500; text-transform: uppercase;">
                         Очередь пуста
                     </div>
                 }
@@ -339,7 +404,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.0/dist/browser/signalr.min.js"></script>
-
     <script>
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/queueHub")
@@ -347,57 +411,38 @@
             .build();
 
         function speakTicket(number, serviceName) {
-            if (!('speechSynthesis' in window)) {
-                console.warn('Браузер не поддерживает синтез речи');
-                return;
-            }
-
+            if (!('speechSynthesis' in window)) return;
             window.speechSynthesis.cancel();
-
             const numberText = number.split('').join(' ');
             const message = `Талон ${numberText}. Приглашается к окну.`;
-
             const utterance = new SpeechSynthesisUtterance(message);
-
-            utterance.lang = 'ru-RU'; 
-            utterance.rate = 1;    
-            utterance.pitch = 1;     
-            utterance.volume = 1;    
-
+            utterance.lang = 'ru-RU';
+            utterance.rate = 1;
+            utterance.pitch = 1;
+            utterance.volume = 1;
             const voices = window.speechSynthesis.getVoices();
-
             const ruVoice = voices.find(voice => voice.lang.includes('ru'));
-            if (ruVoice) {
-                utterance.voice = ruVoice;
-            }
-
+            if (ruVoice) utterance.voice = ruVoice;
             window.speechSynthesis.speak(utterance);
         }
-
 
         connection.on("OnTicketUpdated", function(update) {
             if (update.status == "Waiting"){
                 addTicketToList('queueList', update.id, update.number, update.serviceName);
             }
-            
             if (update.status === "Active") {
                 showCallNotification(update.number);
                 updateCurrentTicketDisplay(update.number, update.serviceName);
-                setTimeout(() => {
-                speakTicket(update.number, update.serviceName);
-            }, 300);
+                setTimeout(() => { speakTicket(update.number, update.serviceName); }, 300);
                 removeTicketFromList('queueList', update.id);
             }
-
             if (update.status === "Completed") {
                 removeTicketFromList('queueList', update.id);
                 const currentNumberEl = document.getElementById('currentTicketNumber');
                 const currentServiceEl = document.getElementById('currentService');
-
                 if (currentNumberEl.textContent === update.number) {
                     currentNumberEl.style.opacity = '0';
                     currentServiceEl.style.opacity = '0';
-
                     setTimeout(() => {
                         currentNumberEl.textContent = "---";
                         currentServiceEl.textContent = "Ожидание...";
@@ -413,15 +458,12 @@
         function updateCurrentTicketDisplay(number, service) {
             const numEl = document.getElementById('currentTicketNumber');
             const servEl = document.getElementById('currentService');
-
             if (numEl.textContent !== number) {
                 numEl.textContent = number;
                 servEl.textContent = service || 'Ожидание...';
-
                 numEl.style.animation = 'none';
                 numEl.offsetHeight;
                 numEl.style.animation = 'fadeIn 0.5s ease';
-
                 servEl.style.animation = 'none';
                 servEl.offsetHeight;
                 servEl.style.animation = 'fadeIn 0.5s ease';
@@ -431,19 +473,16 @@
         function removeTicketFromList(listId, ticketId) {
             const list = document.getElementById(listId);
             if (!list) return;
-
             const item = list.querySelector(`.queue-item[data-ticket-id="${ticketId}"]`);
-
             if (item) {
                 item.style.transition = 'opacity 0.3s, transform 0.3s';
                 item.style.opacity = '0';
                 item.style.transform = 'translateX(-20px)';
-
                 setTimeout(() => {
                     item.remove();
                     if (list.querySelectorAll('.queue-item').length === 0) {
                         if (!list.querySelector('div[style*="text-align: center"]')) {
-                            list.innerHTML = '<div style="text-align: center; color: #ccc; padding: 60px; font-weight: 500;">Очередь пуста</div>';
+                            list.innerHTML = '<div style="text-align: center; color: #ccc; padding: 60px; font-weight: 500; text-transform: uppercase;">Очередь пуста</div>';
                         }
                     }
                 }, 300);
@@ -453,32 +492,16 @@
         function addTicketToList(listId, ticketId, number, serviceName) {
             const list = document.getElementById(listId);
             if (!list) return;
-
             const existingItem = list.querySelector(`.queue-item[data-ticket-id="${ticketId}"]`);
-            if (existingItem) {
-                console.log('Талон уже в списке:', number);
-                return;
-            }
-
+            if (existingItem) return;
             const emptyState = list.querySelector('div[style*="text-align: center"]');
-            if (emptyState) {
-                emptyState.remove();
-            }
-
+            if (emptyState) emptyState.remove();
             const item = document.createElement('div');
-            item.className = 'queue-item new';
+            item.className = 'queue-item';
             item.setAttribute('data-ticket-id', ticketId);
-
-            item.innerHTML = `
-                <div class="queue-number">${number}</div>
-                <div class="queue-service">${serviceName || ''}</div>
-            `;
-
+            item.innerHTML = `<div class="queue-number">${number}</div><div class="queue-service">${serviceName || ''}</div>`;
             list.appendChild(item);
-
-            setTimeout(() => {
-                list.scrollTop = list.scrollHeight;
-            }, 100);
+            setTimeout(() => { list.scrollTop = list.scrollHeight; }, 100);
         }
 
         async function startConnection() {

@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <Resource Include="wwwroot\images\background.jpg" />
   </ItemGroup>
 
 </Project>
