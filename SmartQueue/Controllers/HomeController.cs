@@ -12,27 +12,30 @@ namespace SmartQueue.Controllers
         private readonly IService _service = service;
         private readonly IpService _ipService = ipService;
 
-        [Route("Home")]
+        [Route("Scan")]
+        [Route("Home/Scan")]
         public IActionResult Home() 
         {
             ViewBag.Ip = _ipService.GetIpAddress();
             return View();
         }
+
+        [Route("")]
+        [Route("Home")]
+        [Route("Home/Authorization")]
         public async Task<IActionResult> Authorization()
         {
             var visitor = await GetOrCreateVisitorAsync();
             if (visitor == null) return BadRequest("Не удалось определить IP");
-
-            if (visitor.Ip == "127.0.0.1") return RedirectToAction("Login", "Admin");
 
             var activeTicket = _ticket.Tickets.FirstOrDefault(t =>
             t.Visitor.Id == visitor.Id &&
             (t.Status == Ticket.StatusType.Waiting || t.Status == Ticket.StatusType.Active));
 
             if (activeTicket != null)
-                return RedirectToAction("GetTicket", "Ticket", new { id = activeTicket.Id });
+                return RedirectToAction("Get", "Ticket", new { id = activeTicket.Id });
 
-            return View("~/Views/Service/List.cshtml", _service.Services.ToList());
+            return RedirectToAction("List", "Service");
         }
         private async Task<Visitor> GetOrCreateVisitorAsync()
         {

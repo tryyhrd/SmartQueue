@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using SmartQueue.Data.Interfaces;
 using SmartQueue.Data.Models;
 using SmartQueue.Hubs;
@@ -14,6 +13,7 @@ namespace SmartQueue.Controllers
         private readonly IVisitor _visitor = visitor;
         private readonly IService _service = service;
         private readonly IHubContext<QueueHub> _hubContext = hubContext;
+
 
         public async Task<ActionResult> Create(int serviceId)
         {
@@ -51,7 +51,7 @@ namespace SmartQueue.Controllers
 
                 if (activeTicket != null)
                 {
-                    return RedirectToAction("GetTicket", "Ticket", new { id = activeTicket.Id });
+                    return RedirectToAction("Get", "Ticket", new { id = activeTicket.Id });
                 }
             }
 
@@ -80,13 +80,17 @@ namespace SmartQueue.Controllers
             var model = new ViewModels.QueueTicketViewModel
             {
                 Service = service,
-                Ticket = ticket
+                Ticket = ticket,
+                ServiceTickets = tickets
+                .Where(x => 
+                x.Service == service && 
+                x.Status == Ticket.StatusType.Waiting)
+                .ToList()
             };
 
-            return View("Create", model);
+            return View("Index", model);
         }
-
-        public IActionResult GetTicket(int id)
+        public IActionResult Get(int id)
         {
             var ticket = _tickets.Tickets.FirstOrDefault(t => t.Id == id);
 
@@ -100,10 +104,30 @@ namespace SmartQueue.Controllers
             var model = new ViewModels.QueueTicketViewModel
             {
                 Ticket = ticket,
-                Service = service
+                Service = service,
+                ServiceTickets = _tickets.Tickets.Where(x =>
+                x.Service == service &&
+                x.Status == Ticket.StatusType.Waiting)
+                .ToList()
             };
 
-            return View("Create", model);
+            return View("Index", model);
+        }
+        [HttpGet]
+        public IActionResult GetPosition(int ticketId)
+        {
+            var ticket = _tickets.Tickets.FirstOrDefault(t => t.Id == ticketId);
+            var status = ticket?.Status ?? 0;
+            if (status != Ticket.StatusType.Waiting) return Content("-");
+
+            var allWaitingTickets = _tickets.Tickets
+                .Where(t => t.Status == Ticket.StatusType.Waiting);
+
+            var position = allWaitingTickets
+                .Where(t => t.Service == ticket.Service && t.CreatedAt < ticket.CreatedAt)
+                .Count() + 1;
+
+            return Content(position.ToString());
         }
     }
 }

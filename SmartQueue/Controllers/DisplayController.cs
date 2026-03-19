@@ -4,11 +4,10 @@ using SmartQueue.ViewModels;
 
 namespace SmartQueue.Controllers
 {
-    public class Dashboard(ITicket ticket) : Controller
+    public class DisplayController(ITicket ticket) : Controller
     {
         private readonly ITicket _ticket = ticket;
-
-        public IActionResult Display()
+        public IActionResult Board()
         {
             var tickets = _ticket.Tickets.ToList();
 

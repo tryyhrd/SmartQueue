@@ -77,16 +77,17 @@ app.UseSession();
 app.MapHub<QueueHub>("/queueHub");
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Authorization}/{id?}");
+    pattern: "{controller=Display}/{action=Board}/{id?}");
 app.MapRazorPages();
 
 var baseUrl = "http://localhost:5000";
 
 var runTask = app.RunAsync();
 await Task.Delay(2000);
- 
-OpenBrowser($"{baseUrl}/Dashboard/Display");   
-OpenBrowser($"{baseUrl}/Home");           
+
+OpenBrowser($"{baseUrl}/Display/Board");
+OpenBrowser($"{baseUrl}/Home");
+OpenBrowser($"{baseUrl}/Admin/Dashboard");
 
 await runTask;
 

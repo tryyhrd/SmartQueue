@@ -9,6 +9,7 @@ using SmartQueue.ViewModels;
 using System.Security.Claims;
 using static SmartQueue.Hubs.QueueHub;
 using SmartQueue.Data.Models;
+using System.Reflection.PortableExecutable;
 
 namespace SmartQueue.Controllers
 {
@@ -107,9 +108,6 @@ namespace SmartQueue.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AcceptTicket(int id)
         {
-            if (_ticket.Tickets.Any(x => x.Status == Data.Models.Ticket.StatusType.Active))
-                return BadRequest(new {message = "Уже есть активный посетитель"});
-
             var ticket = _ticket.Tickets.FirstOrDefault(t => t.Id == id);
 
             if (ticket == null)
@@ -208,6 +206,8 @@ namespace SmartQueue.Controllers
                 return View(model);
             }
 
+            model.Code = GetLetter(_service.Services.Count() + 1);
+
             await _service.AddServiceAsync(model);
             return RedirectToAction(nameof(Service));
         }
@@ -249,6 +249,25 @@ namespace SmartQueue.Controllers
                 await _service.RemoveServiceAsync(service);
             }
             return RedirectToAction(nameof(Service));
+        }
+        private string GetLetter(int index)
+        {
+            if (index < 1)
+                throw new ArgumentOutOfRangeException(nameof(index), "Индекс должен быть от 1");
+
+            const string letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+
+            if (index <= 33) 
+            {
+                return letters[index - 1].ToString();
+            }
+            else 
+            {
+                int firstLetterIndex = ((index - 1) / 33) - 1; 
+                int secondLetterIndex = (index - 1) % 33;   
+
+                return letters[firstLetterIndex].ToString() + letters[secondLetterIndex];
+            }
         }
     }
 }

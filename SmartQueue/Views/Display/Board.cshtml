@@ -1,0 +1,825 @@
+﻿@model SmartQueue.ViewModels.DashboardViewModel
+
+@{
+    ViewBag.Title = "Электронная очередь";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-main: #333333;
+            --text-secondary: #666666;
+            --accent-red: #ed1c24;
+            --accent-grey: #58595b;
+            --border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: url("/images/background.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+            height: calc(100vh - 40px);
+            max-height: calc(100vh - 40px);
+            margin: 20px auto;
+            width: calc(100% - 40px);
+            overflow: hidden;
+            align-items: stretch;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .waiting-count {
+            background: #e0e0e0;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+            .waiting-count i {
+                font-size: 14px;
+                font-style: normal;
+                opacity: 0.8;
+            }
+
+            .waiting-count span {
+                padding: 2px 8px;
+                border-radius: 15px;
+                margin-left: 5px;
+                font-size: 14px;
+                font-weight: 800;
+            }
+
+        .left-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%;
+            min-height: 0;
+            max-height: 100%;
+        }
+
+        .video-container {
+            flex: 1;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 8px 10px rgba(0,0,0,0.15);
+            min-height: 0;
+            max-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .video-container video, .video-container img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .video-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+        }
+
+            .video-placeholder h3 {
+                font-size: 24px;
+                font-weight: 300;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+            }
+
+        .current-ticket-section {
+            width: 100%;
+            flex: 0 0 auto;
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border-top: 3px solid var(--accent-red);
+        }
+
+        .current-label {
+            font-size: 14px;
+            color: var(--accent-red);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            border-left: 3px solid var(--accent-red);
+            padding-left: 10px;
+        }
+
+
+        .active-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 0; 
+        }
+
+            .active-list::-webkit-scrollbar {
+                display: none;
+            }
+
+        .active-list {
+            -ms-overflow-style: none; 
+            scrollbar-width: none; 
+        }
+
+        .active-ticket-card {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 5px solid var(--accent-red);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.075);
+            animation: fadeIn 0.5s ease;
+            flex-shrink: 0;
+        }
+
+            .active-ticket-card[data-code-letter="А"] {
+                border-left-color: #8DA892;
+            }
+
+            .active-ticket-card[data-code-letter="Б"] {
+                border-left-color: #7A95B0;
+            }
+
+            .active-ticket-card[data-code-letter="В"] {
+                border-left-color: #C4A77D;
+            }
+
+            .active-ticket-card[data-code-letter="Г"] {
+                border-left-color: #A68FA8;
+            }
+
+            .active-ticket-card[data-code-letter="Д"] {
+                border-left-color: #C48B8B;
+            }
+
+            .active-ticket-card[data-code-letter="Е"] {
+                border-left-color: #7DA8B0;
+            }
+
+            .active-ticket-card[data-code-letter="Ё"] {
+                border-left-color: #D1BE85;
+            }
+
+            .active-ticket-card[data-code-letter="Ж"] {
+                border-left-color: #9E877F;
+            }
+
+            .active-ticket-card[data-code-letter="З"] {
+                border-left-color: #8C9BA3;
+            }
+
+            .active-ticket-card[data-code-letter="И"] {
+                border-left-color: #C48596;
+            }
+
+        .active-number-text[data-code-letter="А"] {
+            color: #8DA892;
+        }
+
+        .active-number-text[data-code-letter="Б"] {
+            color: #7A95B0;
+        }
+
+        .active-number-text[data-code-letter="В"] {
+            color: #C4A77D;
+        }
+
+        .active-number-text[data-code-letter="Г"] {
+            color: #A68FA8;
+        }
+
+        .active-number-text[data-code-letter="Д"] {
+            color: #C48B8B;
+        }
+
+        .active-number-text[data-code-letter="Е"] {
+            color: #7DA8B0;
+        }
+
+        .active-number-text[data-code-letter="Ё"] {
+            color: #D1BE85;
+        }
+
+        .active-number-text[data-code-letter="Ж"] {
+            color: #9E877F;
+        }
+
+        .active-number-text[data-code-letter="З"] {
+            color: #8C9BA3;
+        }
+
+        .active-number-text[data-code-letter="И"] {
+            color: #C48596;
+        }
+
+        .active-number {
+            font-size: 32px; 
+            font-weight: 800;
+            color: var(--accent-red);
+            line-height: 1;
+            text-transform: uppercase;
+        }
+
+        .active-service {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: right;
+            max-width: 60%; 
+        }
+
+        @@media (min-width: 1920px) {
+            .active-number
+
+        {
+            font-size: 48px;
+        }
+
+        .active-service {
+            font-size: 18px;
+        }
+
+        .active-list {
+            max-height: 450px;
+        }
+
+        }
+
+        .right-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 0;
+            border-top: 3px solid var(--accent-grey);
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        }
+
+        .queue-header {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-main);
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .current-time {
+            font-size: 18px;
+            font-weight: 700;
+            color: #555555;
+            font-family: 'Courier New', monospace;
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 2px;
+            border: 1px solid #ddd;
+        }
+
+        .queue-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            padding-right: 5px;
+            min-height: 0;
+        }
+
+        .queue-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-left: 5px solid #ccc;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.2s ease-out;
+            flex-shrink: 0;
+        }
+
+            .queue-item:hover {
+                transform: translateX(5px);
+                background: #fff;
+                border-left-color: #999;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            }
+
+        @@keyframes slideIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        }
+
+        .queue-item[data-code-letter="А"] {
+            border-left-color: #8DA892; 
+            border-left-width: 8px;
+        }
+
+        .queue-item[data-code-letter="Б"] {
+            border-left-color: #7A95B0;
+            border-left-width: 8px;
+        }
+
+        .queue-item[data-code-letter="В"] {
+            border-left-color: #C4A77D; 
+            border-left-width: 8px;
+        }
+
+        .queue-item[data-code-letter="Г"] {
+            border-left-color: #A68FA8; 
+            border-left-width: 8px;
+        }
+
+        .queue-item[data-code-letter="Д"] {
+            border-left-color: #C48B8B; 
+            border-left-width: 8px;
+        }
+
+        .queue-item[data-code-letter="Е"] {
+            border-left-color: #7DA8B0; 
+            border-left-width: 8px;
+        }
+
+        .queue-item[data-code-letter="Ё"] {
+            border-left-color: #D1BE85;
+            border-left-width: 8px;
+        }
+
+        .queue-item[data-code-letter="Ж"] {
+            border-left-color: #9E877F; 
+            border-left-width: 8px;
+        }
+
+        .queue-item[data-code-letter="З"] {
+            border-left-color: #8C9BA3; 
+            border-left-width: 8px;
+        }
+
+        .queue-item[data-code-letter="И"] {
+            border-left-color: #C48596; 
+            border-left-width: 8px;
+        }
+
+        .queue-number {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-main);
+            text-transform: uppercase;
+        }
+
+        .queue-service {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            text-align: right;
+            max-width: 40%;
+        }
+
+        .call-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 60px 100px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 1000;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 4px solid #555;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+            .call-notification.show {
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            .call-notification h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+                color: #555;
+                text-transform: uppercase;
+                letter-spacing: 3px;
+                font-weight: 800;
+            }
+
+            .call-notification .ticket-number {
+                font-size: 140px;
+                font-weight: 900;
+                color: var(--text-main);
+                line-height: 1;
+                text-transform: uppercase;
+            }
+
+        @@media (min-width: 1920px) {
+            .active-number
+
+        {
+            font-size: 64px;
+        }
+
+        .queue-number {
+            font-size: 36px;
+        }
+
+        }
+        @@media (max-width: 1366px) {
+            .active-number
+
+        {
+            font-size: 40px;
+        }
+
+        .queue-number {
+            font-size: 24px;
+        }
+
+        .call-notification .ticket-number {
+            font-size: 100px;
+        }
+
+        }
+
+        .queue-list::-webkit-scrollbar, .active-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .queue-list::-webkit-scrollbar-track, .active-list::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .queue-list::-webkit-scrollbar-thumb, .active-list::-webkit-scrollbar-thumb {
+            background: var(--accent-grey);
+        }
+
+            .queue-list::-webkit-scrollbar-thumb:hover, .active-list::-webkit-scrollbar-thumb:hover {
+                background: #333;
+            }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="left-section">
+            <div class="video-container">
+                <video autoplay muted loop playsinline>
+                    <source src="/videos/main.mp4" type="video/mp4" />
+                </video>
+                <div class="video-placeholder" style="display: none">
+                    <h3>Информационное табло</h3>
+                </div>
+            </div>
+
+            <div class="current-ticket-section">
+                <div class="current-label">Сейчас обслуживаются</div>
+
+                <div class="active-list" id="activeList">
+                    @if (Model.ActiveTickets.Any())
+                    {
+                        foreach (var ticket in Model.ActiveTickets)
+                        {
+                            <div class="active-ticket-card" data-code-letter="@(ticket.Number?.Length > 0 ? ticket.Number[0].ToString() : "")">
+                                <div class="active-number">
+                                    <span class="active-number-text" data-code-letter="@(ticket.Number?.Length > 0 ? ticket.Number[0].ToString() : "")">@ticket.Number</span>
+                                </div>
+                                <div class="active-service">@ticket.Service?.Name</div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div style="text-align: center; color: #999; padding: 20px; font-style: italic;">
+                            Нет активных талонов
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="right-section">
+            <div class="queue-header">
+                <span>Очередь ожидания</span>
+                <div class="header-right">
+                    <div class="waiting-count" id="waitingCount">
+                        <i>Ожидают:</i>
+                        <span id="waitingCountValue">0</span>
+                    </div>
+                    <span class="current-time" id="currentTime">00:00:00</span>
+                </div>
+            </div>
+            <div class="queue-list" id="queueList">
+                @if (Model.WaitingTickets.Any())
+                {
+                    @foreach (var ticket in Model.WaitingTickets)
+                    {
+                        <div class="queue-item" data-ticket-id="@ticket.Id">
+                            <div class="queue-number">@ticket.Number</div>
+                            <div class="queue-service">@ticket.Service?.Name</div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div style="text-align: center; color: #ccc; padding: 60px; font-weight: 500; text-transform: uppercase;">
+                        Очередь пуста
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="call-notification" id="callNotification">
+        <h2>Приглашается</h2>
+        <div class="ticket-number" id="callTicketNumber">A001</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.0/dist/browser/signalr.min.js"></script>
+    <script>
+        const spokenTickets = new Set();
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/queueHub")
+            .withAutomaticReconnect()
+            .build();
+
+        function updateWaitingCount() {
+            const list = document.getElementById('queueList');
+            if (!list) return;
+            const waitingItems = list.querySelectorAll('.queue-item');
+            const countElement = document.getElementById('waitingCountValue');
+            const countContainer = document.getElementById('waitingCount');
+            if (countElement) countElement.textContent = waitingItems.length;
+            if (countContainer) {
+                if (waitingItems.length === 0) countContainer.style.background = '#eeeeee';
+                else if (waitingItems.length > 20) countContainer.style.background = '#bdbdbd';
+                else if (waitingItems.length > 10) countContainer.style.background = '#e0e0e0';
+                else countContainer.style.background = '#eeeeee';
+            }
+        }
+
+        function speakTicket(number, serviceName) {
+              if (spokenTickets.has(number)) {
+                    return;
+              }
+
+              spokenTickets.add(number);
+
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const numberText = number.split('').join(' ');
+            const message = `Талон ${numberText}, приглашается на ${serviceName}`;
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.lang = 'ru-RU';
+            utterance.rate = 1; 
+            utterance.pitch = 1; 
+            utterance.volume = 1;
+            const voices = window.speechSynthesis.getVoices();
+            const ruVoice = voices.find(voice => voice.lang.includes('ru'));
+            if (ruVoice) utterance.voice = ruVoice;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        connection.on("OnTicketUpdated", function(update) {
+            if (update.status == "Waiting"){
+                const codeLetter = update.number.charAt(0);
+                addTicketToList('queueList', update.id, update.number, update.serviceName, codeLetter);
+            }
+            if (update.status === "Active") {
+                removeTicketFromList('queueList', update.id);
+                showCallNotification(update.number);
+                addActiveTicketToDisplay(update.number, update.serviceName, update.id);
+                speakTicket(update.number, update.serviceName);
+            }
+            if (update.status === "Completed") {
+                const activeList = document.getElementById('activeList');
+                if (activeList) {
+                    const activeCard = activeList.querySelector(`.active-ticket-card[data-ticket-id="${update.id}"]`);
+                    if (activeCard) {
+                        activeCard.style.transition = 'opacity 0.5s';
+                        activeCard.style.opacity = '0';
+                        setTimeout(() => {
+                            activeCard.remove();
+                            if (activeList.children.length === 0) {
+                                activeList.innerHTML = '<div style="text-align: center; color: #999; padding: 20px; font-style: italic;">Нет активных талонов</div>';
+                            }
+                        }, 500);
+                    }
+                }
+            }
+        });
+
+        function removeTicketFromList(listId, ticketId) {
+            const list = document.getElementById(listId);
+            if (!list) return;
+            const item = list.querySelector(`.queue-item[data-ticket-id="${ticketId}"]`);
+            if (item) {
+                item.style.transition = 'opacity 0.3s, transform 0.3s';
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    item.remove();
+                    updateWaitingCount();
+                    if (list.querySelectorAll('.queue-item').length === 0) {
+                        if (!list.querySelector('div[style*="text-align: center"]')) {
+                            list.innerHTML = '<div style="text-align: center; color: #ccc; padding: 60px; font-weight: 500; text-transform: uppercase;">Очередь пуста</div>';
+                        }
+                    }
+                }, 300);
+            }
+        }
+
+        function addTicketToList(listId, ticketId, number, serviceName, serviceCode) {
+            const list = document.getElementById(listId);
+            if (!list) return;
+            const existingItem = list.querySelector(`.queue-item[data-ticket-id="${ticketId}"]`);
+            if (existingItem) return;
+            const emptyState = list.querySelector('div[style*="text-align: center"]');
+            if (emptyState) emptyState.remove();
+            const item = document.createElement('div');
+            item.className = 'queue-item';
+            item.setAttribute('data-ticket-id', ticketId);
+            item.setAttribute('data-code-letter', serviceCode);
+            item.innerHTML = `<div class="queue-number">${number}</div><div class="queue-service">${serviceName || ''}</div>`;
+            item.style.opacity = '0'; item.style.transform = 'translateX(-20px)';
+            list.appendChild(item);
+            setTimeout(() => {
+                item.style.transition = 'opacity 0.3s, transform 0.3s';
+                item.style.opacity = '1'; item.style.transform = 'translateX(0)';
+            }, 50);
+            setTimeout(() => { list.scrollTop = list.scrollHeight; updateWaitingCount();}, 100);
+        }
+
+        function addActiveTicketToDisplay(number, serviceName, ticketId) {
+            const activeList = document.getElementById('activeList');
+            if (!activeList) return;
+
+            const emptyState = activeList.querySelector('div[style*="text-align: center"]');
+            if (emptyState) emptyState.remove();
+
+            const codeLetter = number.charAt(0);
+            const card = document.createElement('div');
+            card.className = 'active-ticket-card';
+            card.setAttribute('data-ticket-id', ticketId);
+            card.setAttribute('data-code-letter', codeLetter);
+            card.innerHTML = `
+                    <div class="active-number">
+                        <span class="active-number-text" data-code-letter="${codeLetter}">${number}</span>
+                    </div>
+                    <div class="active-service">${serviceName || ''}</div>
+            `;
+            activeList.appendChild(card);
+
+            setTimeout(() => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.5s, transform 0.5s';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 10);
+            }, 10);
+        }
+
+        async function startConnection() {
+            try { await connection.start(); await connection.invoke("JoinGroup", "displays"); }
+            catch (err) { setTimeout(startConnection, 5000); }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            startConnection();
+            updateWaitingCount();
+            setTimeout(() => {
+                document.querySelectorAll('.queue-item').forEach(item => {
+                    if (!item.hasAttribute('data-code-letter')) {
+                        const numberDiv = item.querySelector('.queue-number');
+                        if (numberDiv && numberDiv.textContent) {
+                            const letter = numberDiv.textContent.charAt(0);
+                            item.setAttribute('data-code-letter', letter);
+                        }
+                    }
+                });
+                updateWaitingCount();
+            }, 500);
+        });
+
+        function showCallNotification(ticketNumber) {
+            const notification = document.getElementById('callNotification');
+            document.getElementById('callTicketNumber').textContent = ticketNumber;
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 4000);
+        }
+
+        window.addEventListener('beforeunload', async () => {
+            try { await connection.invoke("LeaveGroup", "displays"); await connection.stop(); } catch(e) {}
+        });
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('ru-RU');
+        }
+        setInterval(updateTime, 1000); updateTime();
+    </script>
+</body>
+</html>

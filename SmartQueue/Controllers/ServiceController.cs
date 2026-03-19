@@ -12,7 +12,7 @@ namespace SmartQueue.Controllers
             this._allServices = allServices;
         }
 
-        
+        [Route("Services")]
         public ViewResult List()
         {
             ViewBag.Title = "Все услуги";
