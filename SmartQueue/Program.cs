@@ -86,7 +86,6 @@ var runTask = app.RunAsync();
 await Task.Delay(2000);
 
 OpenBrowser($"{baseUrl}/Display/Board");
-OpenBrowser($"{baseUrl}/Home");
 OpenBrowser($"{baseUrl}/Admin/Dashboard");
 
 await runTask;

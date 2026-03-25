@@ -57,7 +57,7 @@ namespace SmartQueue.Controllers
 
             var ticket = new Ticket
             {
-                Number = $"A{tickets.Count() + 1:000}",
+                Number = $"{service.Code + tickets.Count(x => x.Service == service) + 1:000}",
                 Visitor = visitor,
                 Service = service,
                 CreatedAt = DateTime.Now,

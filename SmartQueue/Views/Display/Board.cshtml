@@ -233,45 +233,45 @@
                 border-left-color: #C48596;
             }
 
-        .active-number-text[data-code-letter="А"] {
-            color: #8DA892;
-        }
+         .active-number-text[data-code-letter="А"] {
+             color: #8DA892;
+         }
 
-        .active-number-text[data-code-letter="Б"] {
-            color: #7A95B0;
-        }
+         .active-number-text[data-code-letter="Б"] {
+             color: #7A95B0;
+         }
 
-        .active-number-text[data-code-letter="В"] {
-            color: #C4A77D;
-        }
+         .active-number-text[data-code-letter="В"] {
+             color: #C4A77D;
+         }
 
-        .active-number-text[data-code-letter="Г"] {
-            color: #A68FA8;
-        }
+         .active-number-text[data-code-letter="Г"] {
+             color: #A68FA8;
+         }
 
-        .active-number-text[data-code-letter="Д"] {
-            color: #C48B8B;
-        }
+         .active-number-text[data-code-letter="Д"] {
+             color: #C48B8B;
+         }
 
-        .active-number-text[data-code-letter="Е"] {
-            color: #7DA8B0;
-        }
+         .active-number-text[data-code-letter="Е"] {
+             color: #7DA8B0;
+         }
 
-        .active-number-text[data-code-letter="Ё"] {
-            color: #D1BE85;
-        }
+         .active-number-text[data-code-letter="Ё"] {
+             color: #D1BE85;
+         }
 
-        .active-number-text[data-code-letter="Ж"] {
-            color: #9E877F;
-        }
+         .active-number-text[data-code-letter="Ж"] {
+             color: #9E877F;
+         }
 
-        .active-number-text[data-code-letter="З"] {
-            color: #8C9BA3;
-        }
+         .active-number-text[data-code-letter="З"] {
+             color: #8C9BA3;
+         }
 
-        .active-number-text[data-code-letter="И"] {
-            color: #C48596;
-        }
+         .active-number-text[data-code-letter="И"] {
+             color: #C48596;
+         }
 
         .active-number {
             font-size: 32px; 
@@ -461,11 +461,19 @@
             border-left-width: 8px;
         }
 
+        .queue-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0; 
+        }
+
         .queue-number {
             font-size: 28px;
             font-weight: 800;
             color: var(--text-main);
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .queue-service {
@@ -474,8 +482,9 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 600;
-            text-align: right;
-            max-width: 40%;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .call-notification {
@@ -581,7 +590,9 @@
                     {
                         foreach (var ticket in Model.ActiveTickets)
                         {
-                            <div class="active-ticket-card" data-code-letter="@(ticket.Number?.Length > 0 ? ticket.Number[0].ToString() : "")">
+                            <div class="active-ticket-card"
+                                 data-ticket-id="@ticket.Id"
+                                 data-code-letter="@(ticket.Number?.Length > 0 ? ticket.Number[0].ToString() : "")">
                                 <div class="active-number">
                                     <span class="active-number-text" data-code-letter="@(ticket.Number?.Length > 0 ? ticket.Number[0].ToString() : "")">@ticket.Number</span>
                                 </div>
@@ -616,8 +627,10 @@
                     @foreach (var ticket in Model.WaitingTickets)
                     {
                         <div class="queue-item" data-ticket-id="@ticket.Id">
-                            <div class="queue-number">@ticket.Number</div>
-                            <div class="queue-service">@ticket.Service?.Name</div>
+                            <div class="queue-info">
+                                <div class="queue-number">@ticket.Number</div>
+                                <div class="queue-service">@ticket.Service?.Name</div>
+                            </div>
                         </div>
                     }
                 }
@@ -638,6 +651,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.0/dist/browser/signalr.min.js"></script>
     <script>
         const spokenTickets = new Set();
+        let notificationTimeout = null;
 
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/queueHub")
@@ -659,26 +673,32 @@
             }
         }
 
-        function speakTicket(number, serviceName) {
-              if (spokenTickets.has(number)) {
+            function speakTicket(number, serviceName, isRecall = false) {
+                if (!isRecall && spokenTickets.has(number)) {
                     return;
-              }
+                }
 
-              spokenTickets.add(number);
+                if (isRecall) {
+                    spokenTickets.delete(number);
+                }
 
-            if (!('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel();
-            const numberText = number.split('').join(' ');
-            const message = `Талон ${numberText}, приглашается на ${serviceName}`;
-            const utterance = new SpeechSynthesisUtterance(message);
-            utterance.lang = 'ru-RU';
-            utterance.rate = 1; 
-            utterance.pitch = 1; 
-            utterance.volume = 1;
-            const voices = window.speechSynthesis.getVoices();
-            const ruVoice = voices.find(voice => voice.lang.includes('ru'));
-            if (ruVoice) utterance.voice = ruVoice;
-            window.speechSynthesis.speak(utterance);
+                spokenTickets.add(number);
+
+                if (!('speechSynthesis' in window)) return;
+                window.speechSynthesis.cancel();
+                const numberText = number.split('').join(' ');
+                const message = `Талон ${numberText}, приглашается на ${serviceName}`;
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.lang = 'ru-RU';
+                utterance.rate = 1;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+
+                const voices = window.speechSynthesis.getVoices();
+                const ruVoice = voices.find(voice => voice.lang.includes('ru'));
+                if (ruVoice) utterance.voice = ruVoice;
+
+                window.speechSynthesis.speak(utterance);
         }
 
         connection.on("OnTicketUpdated", function(update) {
@@ -687,10 +707,19 @@
                 addTicketToList('queueList', update.id, update.number, update.serviceName, codeLetter);
             }
             if (update.status === "Active") {
-                removeTicketFromList('queueList', update.id);
-                showCallNotification(update.number);
-                addActiveTicketToDisplay(update.number, update.serviceName, update.id);
-                speakTicket(update.number, update.serviceName);
+
+                const activeList = document.getElementById('activeList');
+                const existingActive = activeList?.querySelector(`.active-ticket-card[data-ticket-id="${update.id}"]`);
+
+                if (!existingActive) {
+                    removeTicketFromList('queueList', update.id);
+                    showCallNotification(update.number);
+                    addActiveTicketToDisplay(update.number, update.serviceName, update.id);
+                    speakTicket(update.number, update.serviceName, false);
+                } else {
+                    showCallNotification(update.number);
+                    speakTicket(update.number, update.serviceName, true);
+                }
             }
             if (update.status === "Completed") {
                 const activeList = document.getElementById('activeList');
@@ -729,7 +758,6 @@
                 }, 300);
             }
         }
-
         function addTicketToList(listId, ticketId, number, serviceName, serviceCode) {
             const list = document.getElementById(listId);
             if (!list) return;
@@ -750,7 +778,6 @@
             }, 50);
             setTimeout(() => { list.scrollTop = list.scrollHeight; updateWaitingCount();}, 100);
         }
-
         function addActiveTicketToDisplay(number, serviceName, ticketId) {
             const activeList = document.getElementById('activeList');
             if (!activeList) return;
@@ -806,9 +833,25 @@
 
         function showCallNotification(ticketNumber) {
             const notification = document.getElementById('callNotification');
-            document.getElementById('callTicketNumber').textContent = ticketNumber;
+            const numberElement = document.getElementById('callTicketNumber');
+
+            if (notificationTimeout) {
+                clearTimeout(notificationTimeout);
+            }
+
+            numberElement.textContent = ticketNumber;
             notification.classList.add('show');
-            setTimeout(() => notification.classList.remove('show'), 4000);
+            const codeLetter = ticketNumber.charAt(0);
+            const colorMap = {
+                'А': '#8DA892', 'Б': '#7A95B0', 'В': '#C4A77D', 'Г': '#A68FA8',
+                'Д': '#C48B8B', 'Е': '#7DA8B0', 'Ё': '#D1BE85', 'Ж': '#9E877F',
+                'З': '#8C9BA3', 'И': '#C48596'
+            };
+            numberElement.style.color = colorMap[codeLetter] || '#333333';
+                notificationTimeout = setTimeout(() => {
+                notification.classList.remove('show');
+                notificationTimeout = null;
+            }, 4000);
         }
 
         window.addEventListener('beforeunload', async () => {

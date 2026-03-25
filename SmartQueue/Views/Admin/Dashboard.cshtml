@@ -218,6 +218,18 @@
                 transform: translateY(-2px);
             }
 
+        .btn-recall {
+            background: #fff3cd !important;
+            color: #856404 !important;
+            border-color: #ffeaa7 !important;
+        }
+
+            .btn-recall:hover {
+                background: #ffecb8 !important;
+                color: #664d03 !important;
+                border-color: #ffd966 !important;
+            }
+
         .empty-state {
             text-align: center;
             padding: 40px 20px;
@@ -310,7 +322,7 @@
                                     <div class="ticket-time">@ticket.CreatedAt.ToString("HH:mm")</div>
                                 </div>
                                 <div class="ticket-actions">
-                                    <form asp-action="AcceptTicket" method="post" class="d-inline">
+                                    <form asp-action="AcceptTicket" method="post" class="d-inline me-2">
                                         <input type="hidden" name="id" value="@ticket.Id" />
                                         <button type="submit" class="btn-action btn-accept">Принять</button>
                                     </form>
@@ -345,6 +357,12 @@
                                     <form asp-action="CompleteTicket" method="post">
                                         <input type="hidden" name="id" value="@ticket.Id" />
                                         <button type="submit" class="btn-action btn-complete">Завершить</button>
+                                    </form>
+                                    <form asp-action="RecallTicket" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@ticket.Id" />
+                                        <button type="submit" class="btn-action btn-recall" style="background:#fff3cd; color:#856404; border-color:#ffeaa7;">
+                                            Повторить вызов
+                                        </button>
                                     </form>
                                 </div>
                             </div>

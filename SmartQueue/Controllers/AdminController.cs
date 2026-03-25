@@ -183,6 +183,23 @@ namespace SmartQueue.Controllers
             return RedirectToAction("Dashboard", "Admin");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> RecallTicket(int id)
+        {
+            var ticket = _ticket.Tickets.FirstOrDefault(t => t.Id == id);
+            if (ticket != null && ticket.Status == Ticket.StatusType.Active)
+            {
+                await _hubContext.Clients.All.SendAsync("OnTicketUpdated", new
+                {
+                    id = ticket.Id,
+                    number = ticket.Number,
+                    serviceName = ticket.Service?.Name,
+                    status = "Active"
+                });
+            }
+            return RedirectToAction("Dashboard");
+        }
+
         [HttpGet]
         public IActionResult Service()
         {
@@ -250,6 +267,7 @@ namespace SmartQueue.Controllers
             }
             return RedirectToAction(nameof(Service));
         }
+
         private string GetLetter(int index)
         {
             if (index < 1)
