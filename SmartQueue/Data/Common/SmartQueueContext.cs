@@ -5,7 +5,10 @@ namespace SmartQueue.Data.Common
 {
     public class SmartQueueContext: DbContext
     {
-        public SmartQueueContext(DbContextOptions<SmartQueueContext> options) : base(options){}
+        public SmartQueueContext(DbContextOptions<SmartQueueContext> options) : base(options)
+        {
+            Database.EnsureCreated();
+        }
         public DbSet<Service> Services { get; set; }
         public DbSet<Visitor> Visitors  { get; set; }
         public DbSet<Ticket> Tickets { get; set; }

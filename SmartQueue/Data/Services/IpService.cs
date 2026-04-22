@@ -12,7 +12,7 @@ namespace SmartQueue.Data.Services
             "bluetooth", "tun", "tap", "docker", "wsl", "zero tier"
         };
         public string GetIpAddress()
-        {
+        {   
             var nics = NetworkInterface.GetAllNetworkInterfaces();
 
             foreach (var adapter in nics)

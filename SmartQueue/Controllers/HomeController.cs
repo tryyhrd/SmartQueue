@@ -17,7 +17,7 @@ namespace SmartQueue.Controllers
         public IActionResult Home() 
         {
             ViewBag.Ip = _ipService.GetIpAddress();
-            return View();
+            return View("Scan");
         }
 
         [Route("")]

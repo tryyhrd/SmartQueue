@@ -17,7 +17,7 @@ builder.Services.AddDbContext<SmartQueueContext>(options =>
     );
 
 builder.Services.AddControllersWithViews()
-    .AddApplicationPart(typeof(SmartQueue.Controllers.ServiceController).Assembly);
+    /*.AddApplicationPart(typeof(SmartQueue.Controllers.ServiceController).Assembly)*/;
 
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
@@ -80,13 +80,14 @@ app.MapControllerRoute(
     pattern: "{controller=Display}/{action=Board}/{id?}");
 app.MapRazorPages();
 
-var baseUrl = "http://localhost:5000";
+var baseUrl = builder.Configuration["Urls"];
 
 var runTask = app.RunAsync();
 await Task.Delay(2000);
 
 OpenBrowser($"{baseUrl}/Display/Board");
 OpenBrowser($"{baseUrl}/Admin/Dashboard");
+OpenBrowser($"{baseUrl}/Home/Scan");
 
 await runTask;
 

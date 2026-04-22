@@ -1,9 +1,10 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Http.Extensions;
+@{
     ViewBag.Title = "Сканируйте для входа";
     Layout = null;
     var ip = ViewBag.Ip as string ?? "localhost";
-    var baseUrl = $"http://{ip}:5000"; 
-    var targetUrl = $"{baseUrl}/Home/Authorization";
+    var currentUrl = Context.Request.GetDisplayUrl(); 
+    var targetUrl = $"{currentUrl}/Home/Authorization";
 }
 
 <!DOCTYPE html>
@@ -115,7 +116,6 @@
         </div>
 
         <p class="hint">Наведите камеру телефона на код</p>
-        <p class="ip-info">Адрес доступа: @baseUrl</p>
     </div>
 
     <script>
